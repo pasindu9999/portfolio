@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mediaqueries.css">
+</head>
+<body>
+    <nav id="desktop-nav">
+        <div class="logo">Udara Kurukulasooriya</div>
+        <div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a> </li>               
+                <li><a href="#experience">Experience</a> </li>               
+                <li><a href="#projects">Projects</a> </li>               
+                <li><a href="#contact">Contact</a> </li>               
+            </ul>
+        </div>
+    </nav>
+    <nav id="hamburger-nav">
+        <div class="logo">Udara Kurukulasooriya</div>
+        <div class="hamburger-menu">
+            <div class="hamburger-icon" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="menu-links">
+                <li><a href="#about" onclick="toggleMenu()">About</a> </li>               
+                <li><a href="#experience" onclick="toggleMenu()">Experience</a> </li>               
+                <li><a href="#projects" onclick="toggleMenu()">Projects</a> </li>               
+                <li><a href="#contact" onclick="toggleMenu()">Contact</a> </li>
+            </div>
+        </div>
+    </nav>
+    <section id="profile">
+        <div class="section__pic-container">
+            <img src="./assets/udara-modified.png" alt="Udara Profile pic">
+        </div>
+        <div class="section__text">
+            <p class="section__text__p1">Hello, I'm</p>
+            <h1 class="title">Udara Kurukulasooriya</h1>
+            <p class="section__text__p2">Software Engineer</p>
+            <div class="btn-container">
+                <button 
+                class="btn btn-color-2" 
+                onclick="window.open('./assets/resume-example.pdf')">Download CV
+                </button>
+
+                <button 
+                class="btn btn-color-1" 
+                onclick="location.href ='./#contact'">Contact Info
+                </button>
+            </div>
+            <div id="socials-container">
+                <img src="./assets/linkedin.png" alt="My Linkedin Profile"
+                class="icon" 
+                onclick="location.href='https://www.linkedin.com/in/udara-kurukulasuriya'">
+
+                <img src="./assets/github.png" alt="My Github Profile"
+                class="icon" 
+                onclick="location.href='https://github.com/pasindu9999'">
+            </div>
+        </div>
+    </section>
+    <section id="about">
+        <p class="section__text__p1">Get To Know More</p>
+        <h1 class="title">About Me</h1>
+        <div class="section-container">
+            <div class="section__pic-container">
+                <img src="./assets/udara2.jpeg" 
+                alt="Profile picture"
+                class="about-pic"
+                />
+            </div>
+            <div class="about-details-container">
+                <div class="about-containers">
+                    <div class="details-container">
+                        <img src="./assets/experience.png" 
+                        alt="experience icon"
+                        class="icon"
+                        />
+                        <h3>Experience</h3>
+                        <p>8 Months <br>Software Engineering Intern</p>
+                    </div>
+                    <div class="details-container">
+                        <img src="./assets/education.png" 
+                        alt="education icon"
+                        class="icon"
+                        />
+                        <h3>Education</h3>
+                        <p>BSc. (Hons) in Information Technology University of Moratuwa  </p>
+                    </div>
+                </div>
+                <div class="text-container">
+                    <p> Software Engineer dedicated to transforming conceptual
+                        ideas into robust and functional code. Committed to
+                        delivering 
+                       end-to-end digital solutions that are
+                        comprehensive and fully operational. Also, I am passionate about technology and enjoy staying updated with the latest industry trends.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <img src="./assets/arrow.png" alt="Arrow icon" class="icon arrow"
+        onclick="location.href = './#experience'">
+    </section>
+    <section id="experience">
+        <p class="section__text__p1">Explore My</p>
+        <h1 class="title">Experience</h1>
+        <div class="experience-details-container">
+            <div class="about-containers">
+                <div class="details-container">
+                    <h2 class="experience-sub-title">Languages</h2>
+                    <div class="article-container">
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Java</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>C</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>C#</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Python</h3>
+                                <P>Beginner</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Javascript</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                <div class="details-container">
+                    <h2 class="experience-sub-title">Frameworks and Databases</h2>
+                    <div class="article-container">
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Angular</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>.NET</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Springboot</h3>
+                                <P>Beginner</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>MySQl</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>MSSQl</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                <div class="details-container">
+                    <h2 class="experience-sub-title">IDE s</h2>
+                    <div class="article-container">
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>Visual Studio</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>IntelliJ</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3>NetBeans</h3>
+                                <P>Beginner</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3> Visual Studio Code</h3>
+                                <P>Intermediate</P>
+                            </div>
+                        </article>
+                        <article>
+                            <img src="./assets/checkmark.png" 
+                            alt="experience  icon"
+                            class="icon"/>
+                            <div>
+                                <h3> Eclipse</h3>
+                                <P>Beginner</P>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="./assets/arrow.png" alt="Arrow icon" class="icon arrow"
+        onclick="location.href = './#projects'">
+    </section>
+    <section id="projects">
+        <p class="section__text__p1">Browse My Recent</p>
+        <h1 class="title">Projects</h1>
+        <div class="experience-details-container">
+            <div class="about-containers">
+            <div class="details-container color container">
+                <div class="article-container">
+                    <img src="./assets/project11.jpg" 
+                    alt="project 1"
+                    class="project-img"/>
+                </div>
+                <h2 class="experience-sub-title project-title">Performance Appraisal System</h2>
+                <div class="btn-container">
+                    <button class="btn btn-color-2 project btn" onclick="location.href='https://github.com/pasindu9999/performance-appraisal-service'">
+                        Github
+                    </button>
+                </div>
+            </div>
+            <div class="details-container color container">
+                <div class="article-container">
+                    <img src="./assets/project2.jpg" 
+                    alt="project 1"
+                    class="project-img"/>
+                </div>
+                <h2 class="experience-sub-title project-title">Human Resource Management System</h2>
+                <div class="btn-container">
+                    <button class="btn btn-color-2 project btn" onclick="location.href='https://github.com/pasindu9999/HRMS-System'">
+                        Github
+                    </button>
+                </div>
+            </div>
+            <div class="details-container color container">
+                <div class="article-container">
+                    <img src="./assets/project3.jpg" 
+                    alt="project 1"
+                    class="project-img"/>
+                </div>
+                <h2 class="experience-sub-title project-title">Movie content Rating and Summarizing System</h2>
+                <div class="btn-container">
+                    <button class="btn btn-color-2 project btn" onclick="location.href='https://github.com/pasindu9999/Movie-Content-Rating-System'">
+                        Github
+                    </button>
+                </div>
+            </div>
+            </div>
+        </div>
+        <img src="./assets/arrow.png" alt="Arrow icon" class="icon arrow"
+        onclick="location.href = './#contact'">
+    </section>
+    <section id="contact">
+        <p class="section__text__p1">Get in Touch</p>
+        <h1 class="title">Contact Me</h1>
+        <div class="contact-info-upper-container">
+            <div class="contact-info-container">
+                <img src="./assets/email.png" 
+                alt="email icon"
+                class="icon contact-icon email-icon"/>
+                <p><a href="mailto:udarapasindu9999@gmail.com">udarapasindu9999@gmail.com</a></p>
+            </div>
+            <div class="contact-info-container">
+                <img src="./assets/linkedin.png" 
+                alt="linkedin icon"
+                class="icon contact-icon"/>
+                <p><a href="https://www.linkedin.com/in/udara-kurukulasuriya">Linkedin</a></p>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <nav>
+            <div class="nav-links-container">
+                <ul class="nav-links">
+                    <li><a href="#about">About</a> </li>               
+                    <li><a href="#experience">Experience</a> </li>               
+                    <li><a href="#projects">Projects</a> </li>               
+                    <li><a href="#contact">Contact</a> </li>               
+                </ul>
+            </div>
+        </nav>
+        <p>Copyright &#169 2023 Udara Kurukulasooriya. All Rights Reserved</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
