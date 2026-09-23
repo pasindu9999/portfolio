@@ -1,0 +1,37 @@
+---
+/**
+ * Blocking, pre-paint theme resolution.
+ *
+ * `is:inline` is MANDATORY. Without it Astro bundles this into a deferred
+ * external module and you get exactly the flash this exists to prevent.
+ *
+ * Storage contract: key `theme` holds "light" | "dark" ONLY.
+ * Absence of the key means "follow the system". That makes reset-to-system a
+ * plain removeItem(), and represents a first-time visitor and a
+ * system-preference user identically.
+ */
+---
+<script is:inline>
+  (function () {
+    var stored = null;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch (e) {
+      /* Safari private mode throws on access. Fall through to system. */
+    }
+    var resolved =
+      stored === 'light' || stored === 'dark'
+        ? stored
+        : window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+
+    var el = document.documentElement;
+    el.setAttribute('data-theme', resolved);
+    // Makes native form controls, scrollbars and the browser's own canvas
+    // match. This is what kills the white-flash-before-CSS, as distinct from
+    // the wrong-theme-content problem.
+    el.style.colorScheme = resolved;
+  })();
+</script>

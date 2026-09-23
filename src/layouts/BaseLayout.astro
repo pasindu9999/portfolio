@@ -1,0 +1,109 @@
+---
+import { Font } from 'astro:assets';
+import ThemeScript from '../components/ThemeScript.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Omit to fall back to the site-wide OG image. */
+  ogImage?: string;
+  /** Set on article-ish pages so OG type is correct. */
+  type?: 'website' | 'article';
+}
+
+const {
+  title,
+  description,
+  ogImage = '/og/default.png',
+  type = 'website',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+const SITE_NAME = 'Udara Kurukulasooriya';
+// Home sets its own full title; inner pages get the suffix.
+const fullTitle =
+  Astro.url.pathname === '/' ? title : `${title} — ${SITE_NAME}`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Must come before the stylesheet so the theme is resolved pre-paint. -->
+    <ThemeScript />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <Font cssVariable="--face-display" preload />
+    <Font cssVariable="--face-body" preload />
+    <Font cssVariable="--face-mono" />
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot name="header" />
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="footer" />
+
+    <script>
+      // Reveal shim. Only engages when native scroll-driven animation is
+      // unavailable, so the two paths never double up. Adding the class is
+      // what switches on the `opacity: 0` start state -- if this script never
+      // runs, every [data-reveal] element simply stays visible.
+      const supportsSDA =
+        typeof CSS !== 'undefined' &&
+        CSS.supports('animation-timeline: view()');
+      const reduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+
+      if (!supportsSDA && !reduced && 'IntersectionObserver' in window) {
+        const targets = document.querySelectorAll('[data-reveal]');
+        if (targets.length) {
+          document.documentElement.classList.add('js-reveal');
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                entry.target.classList.add('is-revealed');
+                io.unobserve(entry.target);
+              }
+            },
+            { rootMargin: '0px 0px -12% 0px' },
+          );
+          targets.forEach((el) => io.observe(el));
+          // A revealed-on-scroll element must be visible the moment it is
+          // tabbed to, even if it has never been scrolled into view.
+          document.addEventListener('focusin', (event) => {
+            const host = (event.target as HTMLElement)?.closest?.(
+              '[data-reveal]',
+            );
+            if (host) host.classList.add('is-revealed');
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

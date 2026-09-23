@@ -1,0 +1,93 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', (p) => !p.data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { data } = post;
+
+const fmt = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={data.title} description={data.blurb} type="article">
+  <SiteHeader slot="header" />
+  <SiteFooter slot="footer" />
+
+  <article class="post">
+    <header class="post__head">
+      <p class="eyebrow">
+        <time datetime={data.pubDate.toISOString()}>
+          {fmt.format(data.pubDate)}
+        </time>
+      </p>
+      <h1 class="post__title">{data.title}</h1>
+      <p class="post__blurb">{data.blurb}</p>
+    </header>
+
+    <div class="post__body">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    max-inline-size: 46rem;
+    margin-inline: auto;
+    padding: var(--space-xl) var(--gutter) var(--space-3xl);
+  }
+  .post__title {
+    font-size: var(--step-5);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-block: var(--space-2xs) var(--space-s);
+  }
+  .post__blurb {
+    font-size: var(--step-1);
+    color: var(--ink-muted);
+    padding-block-end: var(--space-m);
+    border-block-end: 1px solid var(--rule);
+    margin-block-end: var(--space-l);
+  }
+  .post__body :global(h2) {
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+    margin-block: var(--space-l) var(--space-s);
+  }
+  .post__body :global(h3) {
+    font-size: var(--step-1);
+    margin-block: var(--space-m) var(--space-2xs);
+  }
+  .post__body :global(p) {
+    margin-block-end: var(--space-s);
+  }
+  .post__body :global(ul),
+  .post__body :global(ol) {
+    margin-block-end: var(--space-s);
+    padding-inline-start: var(--space-m);
+  }
+  .post__body :global(pre) {
+    background-color: var(--surface-sunken);
+    padding: var(--space-s);
+    overflow-x: auto;
+    margin-block-end: var(--space-s);
+  }
+  .post__body :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+</style>

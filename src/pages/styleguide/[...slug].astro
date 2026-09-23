@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ThemeToggle from '../../components/ThemeToggle.astro';
+
+// Dev-only. In a production build this returns no paths, so the route is
+// simply never emitted -- no noindex needed, nothing to leak.
+export function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  return [{ params: { slug: undefined } }];
+}
+
+const SEMANTIC = [
+  'surface',
+  'surface-raised',
+  'surface-sunken',
+  'ink',
+  'ink-muted',
+  'ink-subtle',
+  'rule',
+  'rule-strong',
+  'accent',
+  'accent-hover',
+  'accent-ink',
+  'focus',
+];
+
+const STEPS = [
+  ['--step--2', 'step--2'],
+  ['--step--1', 'step--1'],
+  ['--step-0', 'step-0'],
+  ['--step-1', 'step-1'],
+  ['--step-2', 'step-2'],
+  ['--step-3', 'step-3'],
+  ['--step-4', 'step-4'],
+  ['--step-5', 'step-5'],
+  ['--step-6', 'step-6'],
+  ['--step-7', 'step-7'],
+];
+
+const SPACES = [
+  '3xs', '2xs', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl',
+];
+---
+
+<BaseLayout
+  title="Styleguide"
+  description="Internal design system reference. Dev only."
+>
+  <div class="sg">
+    <header class="sg__head">
+      <div>
+        <p class="eyebrow">Internal — dev only</p>
+        <h1>Styleguide</h1>
+      </div>
+      <ThemeToggle />
+    </header>
+
+    <p class="measure" style="color: var(--ink-muted)">
+      Both themes are rendered side by side below. They are two designed
+      themes, not an inversion: the accent changes hue, and elevation is
+      expressed with a shadow on paper and a luminous hairline on night.
+    </p>
+
+    <!-- ---------- Colour, both themes at once ---------- -->
+    <section class="sg__section">
+      <div class="rule-labelled"><span class="label">01 /</span><span class="label">Colour</span></div>
+      <div class="sg__themes">
+        {['light', 'dark'].map((theme) => (
+          <div class="sg__theme" data-theme={theme}>
+            <p class="mono sg__theme-name">{theme}</p>
+            <ul class="sg__swatches">
+              {SEMANTIC.map((token) => (
+                <li>
+                  <span class="sg__chip" style={`background: var(--${token})`}></span>
+                  <code class="mono">--{token}</code>
+                </li>
+              ))}
+            </ul>
+            <div class="sg__specimen">
+              <h3>Elevation &amp; type</h3>
+              <p>Body copy on the base surface.</p>
+              <p style="color: var(--ink-muted)">Muted copy — passes AA.</p>
+              <div class="sg__card">
+                <p class="mono">raised surface</p>
+                <a href="#0">An accent link</a>
+              </div>
+              <button class="sg__btn">Accent fill</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ---------- Type ---------- -->
+    <section class="sg__section">
+      <div class="rule-labelled"><span class="label">02 /</span><span class="label">Type scale</span></div>
+      <p class="mono" style="color: var(--ink-subtle)">
+        Display: Bricolage Grotesque · Body: Geist · Mono: Geist Mono
+      </p>
+      {STEPS.map(([v, name]) => (
+        <p style={`font-size: var(${v}); font-family: var(--font-display); line-height:1.1`}>
+          <span class="mono" style="font-size: var(--step--2); color: var(--ink-subtle)">{name}</span>
+          {' '}Engineer with taste
+        </p>
+      ))}
+      <p style="font-size: var(--step-anchor); font-family: var(--font-display); line-height: 0.86; letter-spacing:-0.04em">
+        ANCHOR
+      </p>
+    </section>
+
+    <!-- ---------- Space ---------- -->
+    <section class="sg__section">
+      <div class="rule-labelled"><span class="label">03 /</span><span class="label">Space scale</span></div>
+      {SPACES.map((s) => (
+        <div class="sg__space">
+          <code class="mono">--space-{s}</code>
+          <span style={`inline-size: var(--space-${s})`}></span>
+        </div>
+      ))}
+    </section>
+
+    <!-- ---------- Grid ---------- -->
+    <section class="sg__section">
+      <div class="rule-labelled"><span class="label">04 /</span><span class="label">Editorial grid</span></div>
+      <p class="mono" style="color: var(--ink-subtle)">
+        12 columns + named full-bleed lines. Breaks claim a named line, never an ad-hoc margin.
+      </p>
+      <div class="grid-editorial sg__griddemo">
+        <div class="span-full sg__cell">span-full</div>
+        <div class="span-content sg__cell">span-content (default)</div>
+        <div class="span-bleed-left sg__cell">span-bleed-left</div>
+        <div class="span-bleed-right sg__cell">span-bleed-right</div>
+        <div class="col-1-5 sg__cell">col-1-5</div>
+        <div class="col-7-12 sg__cell">col-7-12</div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .sg {
+    padding: var(--space-xl) var(--gutter) var(--space-3xl);
+    max-inline-size: 78rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+  .sg__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+  }
+  .sg__section { display: flex; flex-direction: column; gap: var(--space-s); }
+
+  .sg__themes {
+    display: grid;
+    gap: var(--space-m);
+    grid-template-columns: 1fr;
+  }
+  @media (width >= 48rem) {
+    .sg__themes { grid-template-columns: 1fr 1fr; }
+  }
+  /* Each half paints its own theme's canvas so the comparison is honest. */
+  .sg__theme {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    padding: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+  .sg__theme-name { text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-subtle); }
+
+  .sg__swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: var(--space-2xs);
+  }
+  .sg__swatches li { display: flex; align-items: center; gap: var(--space-2xs); }
+  .sg__chip {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border: 1px solid var(--rule-strong);
+    flex: none;
+  }
+  .sg__swatches code { font-size: var(--step--2); color: var(--ink-muted); }
+
+  .sg__specimen { display: flex; flex-direction: column; gap: var(--space-2xs); }
+  .sg__card {
+    background: var(--surface-raised);
+    box-shadow: var(--elevation);
+    padding: var(--space-s);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+  .sg__btn {
+    align-self: flex-start;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: var(--space-2xs) var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  .sg__space { display: flex; align-items: center; gap: var(--space-s); }
+  .sg__space code { inline-size: 9rem; color: var(--ink-muted); font-size: var(--step--2); }
+  .sg__space span { block-size: 0.75rem; background: var(--accent); display: block; }
+
+  .sg__griddemo { row-gap: var(--space-2xs); border-block: 1px solid var(--rule); padding-block: var(--space-2xs); }
+  .sg__cell {
+    background: var(--surface-sunken);
+    border: 1px dashed var(--rule-strong);
+    padding: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+  }
+</style>

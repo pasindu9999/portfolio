@@ -1,0 +1,281 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import portrait from '../assets/portrait-about.jpeg';
+import { SITE, BIO, SKILLS, EXPERIENCE, EDUCATION } from '../data/site';
+---
+
+<BaseLayout
+  title="About"
+  description={`About ${SITE.name} — ${SITE.role}. Background, experience and the tools I build with.`}
+>
+  <SiteHeader slot="header" />
+  <SiteFooter slot="footer" />
+
+  <section class="about wrap">
+    <p class="eyebrow">About</p>
+    <h1 class="about__title">Engineer,<br />end to end.</h1>
+
+    <div class="about__lead">
+      <div class="about__portrait">
+        <Picture
+          src={portrait}
+          alt={`${SITE.name}`}
+          formats={['avif', 'webp']}
+          widths={[320, 540, 800]}
+          sizes="(min-width: 64rem) 22rem, 60vw"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="about__copy">
+        <p>{BIO}</p>
+        <p class="about__note">
+          In practice that has meant two things at once: moving long-lived
+          enterprise systems onto modern architecture without breaking what
+          already works, and building new platform layers where the interesting
+          problems are access control, data contracts and test coverage rather
+          than screens. The GenAI work is the same instinct pointed at a newer
+          problem — measure first, then decide what to change.
+        </p>
+        <a class="btn" href="/cv.pdf">Download CV</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section-block">
+    <div class="rule-labelled">
+      <span class="label">01 /</span><span class="label">Experience</span>
+    </div>
+    <dl class="sheet">
+      {
+        EXPERIENCE.map((job) => (
+          <div data-reveal>
+            <dt>
+              {job.period}
+              <span class="sheet__dur">{job.duration}</span>
+            </dt>
+            <dd>
+              <strong>{job.title}</strong>
+              <span class="sheet__sub">{job.company}</span>
+              <span class="sheet__body">{job.summary}</span>
+              <ul class="sheet__list">
+                {job.highlights.map((h) => (
+                  <li>{h}</li>
+                ))}
+              </ul>
+              <ul class="sheet__stack" aria-label="Stack">
+                {job.stack.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ))
+      }
+      <div data-reveal>
+        <dt>{EDUCATION.period}</dt>
+        <dd>
+          <strong>{EDUCATION.qualification}</strong>
+          <span class="sheet__sub">{EDUCATION.institution}</span>
+          <span class="sheet__body">{EDUCATION.result}</span>
+          <span class="sheet__body">{EDUCATION.thesis}</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="wrap section-block">
+    <div class="rule-labelled">
+      <span class="label">02 /</span><span class="label">Toolkit</span>
+    </div>
+    <div class="grid-skills">
+      {
+        SKILLS.map((group) => (
+          <div class="skills" data-reveal>
+            <p class="eyebrow">{group.group}</p>
+            <ul>
+              {group.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-inline-size: 78rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .about {
+    padding-block: var(--space-xl) var(--space-l);
+  }
+  .about__title {
+    font-size: var(--step-6);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin-block: var(--space-2xs) var(--space-l);
+  }
+  .about__lead {
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (width >= 64rem) {
+    .about__lead {
+      grid-template-columns: 22rem minmax(0, 1fr);
+      gap: var(--space-xl);
+      align-items: start;
+    }
+  }
+  .about__portrait :global(img) {
+    inline-size: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .about__copy {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    max-inline-size: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+  .about__note {
+    color: var(--ink-muted);
+  }
+
+  .sheet {
+    display: grid;
+    margin-block-start: var(--space-m);
+  }
+  .sheet > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xs);
+    padding-block: var(--space-m);
+    border-block-start: 1px solid var(--rule);
+  }
+  @media (width >= 48rem) {
+    .sheet > div {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      gap: var(--space-m);
+    }
+  }
+  .sheet dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+  }
+  .sheet dd {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .sheet strong {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .sheet__sub {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-subtle);
+  }
+  .sheet__body {
+    color: var(--ink-muted);
+    max-inline-size: var(--measure);
+  }
+  .sheet__dur {
+    display: block;
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    color: var(--ink-subtle);
+    opacity: 0.75;
+  }
+  .sheet__list {
+    margin-block-start: var(--space-2xs);
+    padding-inline-start: 1.1em;
+    max-inline-size: var(--measure);
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+  }
+  .sheet__list li {
+    margin-block-end: var(--space-3xs);
+  }
+  .sheet__list li::marker {
+    color: var(--accent);
+  }
+  .sheet__stack {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+  .sheet__stack li {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 2px var(--space-2xs);
+  }
+
+  .grid-skills {
+    display: grid;
+    gap: var(--space-m);
+    margin-block-start: var(--space-m);
+  }
+  @media (width >= 48rem) {
+    .grid-skills {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
+  }
+  @media (width >= 72rem) {
+    .grid-skills {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* A dense tag field, not a rated list — the CV states no proficiency
+     levels and inventing them would be fabrication. */
+  .skills ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+  .skills li {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 2px var(--space-2xs);
+  }
+
+  .btn {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-decoration: none;
+    padding: var(--space-2xs) var(--space-s);
+    border: 1px solid var(--rule-strong);
+  }
+  .btn:hover {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+</style>

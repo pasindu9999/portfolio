@@ -1,0 +1,178 @@
+---
+/**
+ * Tri-state theme control: Light / System / Dark.
+ *
+ * A two-state switch cannot represent "system" and gives users no way back to
+ * it once they've touched it, so this is a segmented control. Built on native
+ * radio inputs so arrow-key navigation, grouping and announcement come from
+ * the platform rather than a hand-rolled roving tabindex.
+ */
+---
+
+<fieldset class="theme-toggle" id="theme-toggle">
+  <legend class="sr-only">Colour theme</legend>
+
+  <input type="radio" name="theme-pref" id="theme-light" value="light" />
+  <label for="theme-light" title="Light">
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
+      <circle cx="8" cy="8" r="3.1" />
+      <path d="M8 1v1.6M8 13.4V15M15 8h-1.6M2.6 8H1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1M12.9 12.9l-1.1-1.1M4.2 4.2L3.1 3.1" stroke-linecap="round" />
+    </svg>
+    <span class="sr-only">Light</span>
+  </label>
+
+  <input type="radio" name="theme-pref" id="theme-system" value="system" />
+  <label for="theme-system" title="Match system">
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
+      <rect x="1.7" y="2.6" width="12.6" height="8.6" rx="1.2" />
+      <path d="M5.6 13.4h4.8" stroke-linecap="round" />
+    </svg>
+    <span class="sr-only">System</span>
+  </label>
+
+  <input type="radio" name="theme-pref" id="theme-dark" value="dark" />
+  <label for="theme-dark" title="Dark">
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
+      <path d="M13.4 9.6A5.8 5.8 0 0 1 6.4 2.6a5.8 5.8 0 1 0 7 7Z" stroke-linejoin="round" />
+    </svg>
+    <span class="sr-only">Dark</span>
+  </label>
+
+  <span class="theme-toggle__thumb" aria-hidden="true"></span>
+</fieldset>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 3px;
+    background-color: var(--surface-raised);
+  }
+
+  .theme-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .theme-toggle label {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: 1.9rem;
+    block-size: 1.6rem;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ink-subtle);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .theme-toggle label:hover { color: var(--ink); }
+
+  /* The sliding thumb. Sits under the labels and translates between slots. */
+  .theme-toggle__thumb {
+    position: absolute;
+    z-index: 0;
+    inset-block: 3px;
+    inset-inline-start: 3px;
+    inline-size: 1.9rem;
+    border-radius: 999px;
+    background-color: var(--accent);
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  input#theme-light:checked  ~ .theme-toggle__thumb { transform: translateX(0); }
+  input#theme-system:checked ~ .theme-toggle__thumb { transform: translateX(100%); }
+  input#theme-dark:checked   ~ .theme-toggle__thumb { transform: translateX(200%); }
+
+  input:checked + label { color: var(--accent-ink); }
+
+  /* Focus must land on the label, since the real input is visually hidden. */
+  input:focus-visible + label {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle__thumb { transition: none; }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'theme';
+  const root = document.documentElement;
+  const group = document.getElementById('theme-toggle');
+  if (group) {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const read = (): string => {
+      try {
+        const v = localStorage.getItem(STORAGE_KEY);
+        return v === 'light' || v === 'dark' ? v : 'system';
+      } catch {
+        return 'system';
+      }
+    };
+
+    const resolve = (pref: string): 'light' | 'dark' =>
+      pref === 'light' || pref === 'dark'
+        ? pref
+        : media.matches
+          ? 'dark'
+          : 'light';
+
+    const paint = (pref: string) => {
+      const theme = resolve(pref);
+      root.setAttribute('data-theme', theme);
+      root.style.colorScheme = theme;
+    };
+
+    // Initialise the control from the DOM/storage, never from component state.
+    const current = read();
+    const input = group.querySelector<HTMLInputElement>(
+      `input[value="${current}"]`,
+    );
+    if (input) input.checked = true;
+
+    group.addEventListener('change', (event) => {
+      const target = event.target as HTMLInputElement;
+      if (!target.name || target.name !== 'theme-pref') return;
+      const pref = target.value;
+
+      try {
+        if (pref === 'system') localStorage.removeItem(STORAGE_KEY);
+        else localStorage.setItem(STORAGE_KEY, pref);
+      } catch {
+        /* Storage unavailable -- the choice still applies for this page. */
+      }
+
+      // Circular wipe from the control. A full-viewport wipe is a vestibular
+      // trigger, so it is skipped entirely under reduced-motion.
+      const reduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      // @ts-expect-error -- not in every lib.dom yet
+      if (!reduced && typeof document.startViewTransition === 'function') {
+        const rect = target.getBoundingClientRect();
+        root.style.setProperty('--wipe-x', `${rect.left + rect.width / 2}px`);
+        root.style.setProperty('--wipe-y', `${rect.top + rect.height / 2}px`);
+        root.classList.add('theme-wiping');
+        // @ts-expect-error -- see above
+        const vt = document.startViewTransition(() => paint(pref));
+        vt.finished.finally(() => root.classList.remove('theme-wiping'));
+      } else {
+        paint(pref);
+      }
+    });
+
+    // Track the OS while following it. Users expect this; almost nobody does it.
+    media.addEventListener('change', () => {
+      if (read() === 'system') paint('system');
+    });
+  }
+</script>

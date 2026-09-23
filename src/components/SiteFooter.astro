@@ -1,0 +1,72 @@
+---
+import { SITE } from '../data/site';
+// The original hardcoded "2023" (with a malformed &#169 entity). Both fixed.
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <p class="eyebrow">{SITE.role}</p>
+      <p class="site-footer__name">{SITE.name}</p>
+    </div>
+
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/#work">Work</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/writing">Writing</a></li>
+        <li><a href={`mailto:${SITE.email}`}>Email</a></li>
+        <li>
+          <a href={SITE.github} rel="noopener noreferrer" target="_blank">
+            GitHub<span class="sr-only"> (opens in a new tab)</span>
+          </a>
+        </li>
+        <li>
+          <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
+            LinkedIn<span class="sr-only"> (opens in a new tab)</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <p class="site-footer__legal mono">
+      &copy; {year} {SITE.name}. All rights reserved.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-block-start: 1px solid var(--rule);
+    padding: var(--space-xl) var(--gutter) var(--space-l);
+    margin-block-start: var(--space-3xl);
+  }
+  .site-footer__inner {
+    max-inline-size: 78rem;
+    margin-inline: auto;
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (width >= 48rem) {
+    .site-footer__inner {
+      grid-template-columns: 1fr auto;
+      align-items: start;
+    }
+    .site-footer__legal { grid-column: 1 / -1; }
+  }
+  .site-footer__name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    letter-spacing: -0.03em;
+  }
+  .site-footer nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .site-footer__legal { color: var(--ink-subtle); font-size: var(--step--2); }
+</style>
