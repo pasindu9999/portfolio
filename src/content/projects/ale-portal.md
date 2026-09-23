@@ -4,9 +4,9 @@ blurb: 'A production support portal letting users manage support services and bu
 tags: ['Angular', '.NET Framework']
 cover: '../../assets/projects/ale-portal.png'
 coverAlt: 'Typographic cover for the ALE Portal production project.'
-year: 2024
+year: 2023
 role: 'Software Engineer'
-timeline: 'Dec 2023 – Jul 2024'
+timeline: 'Dec 2022 – Jul 2023'
 context: 'Production project — IFS R&D International'
 featured: false
 order: 4
