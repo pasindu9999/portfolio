@@ -64,7 +64,7 @@ const SECTIONS = [
   {
     selected && selected.data.cover && (
       <section id="selected" class="selected">
-        <div class="selected__media" data-reveal>
+        <div class="selected__media" data-reveal data-fit={selected.data.coverFit}>
           <Picture
             src={selected.data.cover}
             alt={selected.data.coverAlt ?? selected.data.title}
@@ -342,6 +342,16 @@ const SECTIONS = [
     inline-size: 100%;
     object-fit: cover;
     aspect-ratio: 4 / 3;
+  }
+  /* Screenshots keep their own proportions -- nothing is cropped, so there is
+     no reason to force a ratio and letterbox the difference. */
+  .selected__media[data-fit='contain'] :global(img) {
+    object-fit: contain;
+    background-color: var(--surface-sunken);
+    aspect-ratio: auto;
+  }
+  .selected__media[data-fit='contain'] {
+    border: 1px solid var(--rule);
   }
   .selected__body {
     display: grid;

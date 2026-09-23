@@ -20,7 +20,7 @@ role: 'Sole engineer'
 timeline: '2026'
 context: 'Self-directed engineering project'
 featured: true
-order: 1
+order: 2
 ---
 
 An eight-module applied LLM engineering curriculum worked through as a single

@@ -10,7 +10,7 @@ timeline: 'Sep 2023 – May 2024'
 context: 'Final year research project — University of Moratuwa'
 repo: 'https://github.com/pasindu9999/Movie-Content-Rating-System'
 featured: false
-order: 3
+order: 4
 ---
 
 The final year research project behind my BSc thesis: an AI-driven system that

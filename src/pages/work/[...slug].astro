@@ -78,7 +78,7 @@ const { data } = project;
     </dl>
 
     {data.cover && (
-    <figure class="case__cover">
+    <figure class="case__cover" data-fit={data.coverFit}>
       <Picture
         src={data.cover}
         alt={data.coverAlt ?? data.title}
@@ -176,13 +176,25 @@ const { data } = project;
   }
   .case__cover :global(img) {
     inline-size: 100%;
-    /* 3:2 rather than 16:9 -- the current covers are square, and a 16:9 crop
-       cuts the top and bottom off them. Capped so a tall image cannot push
-       the whole write-up below the fold. */
+    /* 3:2 rather than 16:9 -- several covers are square, and a 16:9 crop cuts
+       the top and bottom off them. Capped so a tall image cannot push the
+       whole write-up below the fold. */
     aspect-ratio: 3 / 2;
     max-block-size: 70svh;
     object-fit: cover;
     object-position: center;
+  }
+  /* A UI screenshot must keep its edges -- cropping one to 3:2 throws away the
+     content that makes it worth showing. Letterbox it instead. */
+  .case__cover[data-fit='contain'] :global(img) {
+    object-fit: contain;
+    background-color: var(--surface-sunken);
+    aspect-ratio: auto;
+    max-block-size: 76svh;
+    inline-size: 100%;
+  }
+  .case__cover[data-fit='contain'] {
+    border: 1px solid var(--rule);
   }
 
   /* Long-form prose. Scoped styles do not reach <Content />, hence :global. */
@@ -233,6 +245,69 @@ const { data } = project;
   .case__body :global(pre code) {
     background: none;
     padding: 0;
+  }
+
+  /* Content images: base.css already handles responsive sizing and the
+     per-theme filter globally, so only spacing and a hairline frame are
+     needed here -- matching the treatment 'contain' covers get elsewhere. */
+  .case__body :global(img) {
+    border: 1px solid var(--rule);
+    margin-block: var(--space-2xs);
+  }
+
+  /* A markdown image followed immediately by an italic-only paragraph reads
+     as a caption -- style it like the mono eyebrows used across the site
+     rather than as body prose. */
+  .case__body :global(p:has(> em:only-child)) {
+    margin-block-start: calc(-1 * var(--space-2xs));
+    margin-block-end: var(--space-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-subtle);
+  }
+  .case__body :global(p:has(> em:only-child) em) {
+    font-style: normal;
+  }
+
+  /* Side-by-side screenshot pairs, as a plain two-column table. */
+  .case__body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block-end: var(--space-l);
+  }
+  .case__body :global(th),
+  .case__body :global(td) {
+    border: 1px solid var(--rule);
+    padding: var(--space-2xs);
+    vertical-align: top;
+    text-align: start;
+  }
+  .case__body :global(th) {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-subtle);
+    font-weight: 500;
+  }
+  .case__body :global(td img) {
+    margin-block: 0;
+    border: none;
+  }
+  @media (width < 40rem) {
+    /* A two-up screenshot table is unreadable at phone width -- stack it. */
+    .case__body :global(table),
+    .case__body :global(thead),
+    .case__body :global(tbody),
+    .case__body :global(tr),
+    .case__body :global(th),
+    .case__body :global(td) {
+      display: block;
+      width: 100%;
+    }
+    .case__body :global(td) {
+      border-block-start: none;
+    }
   }
 
   .case__next {

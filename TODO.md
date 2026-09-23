@@ -61,7 +61,12 @@ Confirmed working on the live deploy: security headers and the immutable
       `github.com/pasindu9999/AI-chatbot`. Agentic AI & LLM Engineering — the
       project leading the whole ledger — still has no `repo:` and nothing to
       click. Add it if public.
-- [ ] **Live demos.** None yet, noted as future work. Whenever one exists, add
+- [x] ~~Live demos — none yet~~ — **ShiftReason has one**
+      (`shiftreason.pages.dev`) and now leads the ledger at order 1 as the
+      "in focus" project. It is the only entry with both a repo and a working
+      demo, which is exactly why it goes first.
+- [ ] **Live demos for the rest.** Agentic AI, AI PDF Chatbot and the two
+      university projects still have none. Whenever one exists, add
       `demo: 'https://...'` to that project's frontmatter — the case study
       template already renders the link.
 - [ ] **Confirm the publish dates on the two posts.** I chose

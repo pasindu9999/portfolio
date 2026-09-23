@@ -56,8 +56,9 @@ a missing cover image **fails the build** rather than shipping broken.
 title: 'Project name'
 blurb: 'One sentence, max 160 chars. Also used as the meta description.'
 tags: ['Java', 'Spring Boot']   # must exist in STACK in content.config.ts
-cover: '../../assets/projects/<file>.jpg'
+cover: '../../assets/projects/<file>.jpg'   # optional
 coverAlt: 'What the image actually shows.'
+coverFit: 'cover'               # 'contain' for UI screenshots (see below)
 year: 2024
 role: 'Sole developer'
 timeline: 'Mar–Jun 2024'
@@ -67,6 +68,15 @@ featured: false
 order: 4
 ---
 ```
+
+Covers are optional. A project without one still builds — or run
+`npm run covers` to generate a typographic card from the design tokens for it.
+
+`coverFit` controls how the image fills its frame. Illustrations and generated
+covers crop fine with the default `'cover'`. A **UI screenshot must use
+`'contain'`** — cropping one to the 3:2 frame throws away the content that made
+it worth showing. `contain` keeps the image's natural proportions and frames it
+on the sunken surface.
 
 ## Theming
 

@@ -19,7 +19,7 @@ timeline: '2026'
 context: 'Retrieval-augmented generation system'
 repo: 'https://github.com/pasindu9999/AI-chatbot'
 featured: true
-order: 2
+order: 3
 ---
 
 A PDF question-answering system built **from first principles** rather than
