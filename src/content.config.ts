@@ -16,11 +16,15 @@ const STACK = [
   'SQL',
   'C',
   // .NET / Microsoft
+  '.NET 10',
   '.NET 7',
   '.NET Core',
   '.NET MVC',
   '.NET Framework',
   'ASP.NET',
+  'ASP.NET Core',
+  'SignalR',
+  'EF Core',
   'Kendo UI',
   'Telerik Reporting',
   'Azure DevOps',
@@ -36,6 +40,7 @@ const STACK = [
   'Tailwind CSS',
   'Streamlit',
   'Gradio',
+  'Vite',
   // Data
   'SQL Server',
   'PostgreSQL',
@@ -44,12 +49,19 @@ const STACK = [
   'Prisma',
   'TypeORM',
   'ChromaDB',
+  'SQLite',
   // Platform / auth
   'Zod',
   'CASL',
   'Keycloak',
   'Docker',
   'Turborepo',
+  'Azure Container Apps',
+  'Bicep',
+  'GitHub Actions',
+  'Cloudflare Pages',
+  // Optimisation / solvers
+  'OR-Tools (CP-SAT)',
   // ML / GenAI
   'PyTorch',
   'HuggingFace Transformers',
@@ -83,6 +95,12 @@ const projects = defineCollection({
       // fall back to a typographic cover generated from the design system.
       cover: image().optional(),
       coverAlt: z.string().optional(),
+      /**
+       * How the cover fills its box. Illustrations and generated covers crop
+       * fine ('cover'); a UI screenshot must not lose its edges, so those use
+       * 'contain' and sit letterboxed on the sunken surface.
+       */
+      coverFit: z.enum(['cover', 'contain']).default('cover'),
       year: z.number().int().min(2000).max(2100),
       role: z.string(),
       timeline: z.string(),
