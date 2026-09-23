@@ -3,41 +3,67 @@
 Status as of the current branch (`rebuild/astro-editorial`). Nothing is
 committed yet.
 
+Live at <https://udara-kurukulasooriya-portolio.netlify.app/>.
+
 Built and verified: 12 routes, WCAG AA in both themes, 0 bytes of external JS on
 the homepage, all internal links resolving, content visible with JS disabled.
+Confirmed working on the live deploy: security headers and the immutable
+`/_astro/*` cache header.
 
 ---
 
 ## 1. Blocking — must happen before this goes live
 
-- [ ] **Set the real production domain** in `astro.config.mjs` (`site:`). It is
-      currently the placeholder `https://udara-portfolio.netlify.app`, and it
-      drives every canonical URL, the OG tags and the sitemap. Wrong value =
-      wrong canonicals in Google.
+- [x] ~~Set the real production domain in `astro.config.mjs`~~ — now
+      `https://udara-kurukulasooriya-portolio.netlify.app`. Verified: canonical,
+      `og:url` and all 11 sitemap `<loc>` entries point at it.
+      **Note the Netlify site name is misspelled — "portolio", missing the f.**
+      Worth renaming in Netlify (Site settings → Change site name) before this
+      URL goes on a CV; if you do, change `site:` to match on the same day.
 - [ ] **Decide on the HRMS project.** `src/content/projects/hrms.md` is
       `draft: true` because it appears in GitHub and on the old site but
       nowhere on the CV — there is no verified description, role, timeline or
       stack. Either fill it in and set `draft: false`, or delete the file.
-- [ ] **Verify Netlify Forms on a deploy preview.** Submit the contact form once
-      and confirm the entry lands in the Netlify Forms dashboard *before*
-      pointing the domain at it. The form must stay static markup — if it ever
-      moves into a client-rendered island, Netlify's build-time bot stops
-      detecting it and submissions silently vanish.
-- [ ] **Check the ALE Portal dates on your CV.** The CV lists the project as
-      *Dec 2023 – Jul 2024*, but the IFS role it belongs to ran
-      *Dec 2022 – Jul 2023*, and Sitecore did not start until Sep 2024. The site
-      currently uses the CV dates verbatim. This likely wants fixing on the CV
-      itself, not just here.
+- [ ] **Redeploy so Netlify registers the form.** Form detection is now
+      enabled in the UI, but detection only runs **at deploy time**, scanning
+      the built HTML — and no deploy has happened since it was switched on. So
+      Netlify has zero forms registered, which is why the notification
+      dropdown says *No results found*.
+
+      This also explains the `/thanks/` 404. `GET /thanks/` is healthy
+      (verified HTTP 200); the 404 comes from the **POST**. The form does
+      `method="POST" action="/thanks/"`, and on a static site there is no POST
+      handler — normally Netlify intercepts that POST, stores the submission,
+      then serves `/thanks/`. With no form registered it does not intercept,
+      the POST falls through to plain static file serving, which only answers
+      GET, and you get a 404.
+
+      Fix: **Deploys → Trigger deploy → Clear cache and deploy site** (or just
+      push a commit). Then the dropdown will list `contact`, and the POST will
+      be captured.
+
+      Verified already correct, so do NOT change the markup chasing this:
+      `name="contact"`, `method="POST"`, `action="/thanks/"`,
+      `data-netlify="true"`, `netlify-honeypot="bot-field"`, and the hidden
+      `form-name=contact` input are all present in the deployed HTML.
+
+      After the deploy: submit once, confirm it lands under
+      Forms → contact → Submissions, and add an email notification under
+      Forms → Submission notifications or you will never hear about messages.
+      Keep the form as static markup — moving it into a client-rendered island
+      makes Netlify stop detecting it and submissions vanish silently.
+- [x] ~~Check the ALE Portal dates on your CV~~ — fixed in the CV to
+      *Dec 2022 – Jul 2023*, and the site now matches.
 
 ## 2. Content you still need to supply
 
-- [ ] **Live demo URLs** — no project currently has a `demo:` link. If any of
-      these are deployed anywhere, add it; a working demo is the single
-      strongest thing a recruiter can click.
-- [ ] **Repos for the two 2026 AI projects.** Agentic AI and AI PDF Chatbot have
-      no `repo:` set. If they are public, add them. If they are private,
-      consider whether a sanitised public version is worth the effort — they are
-      your strongest work and currently have nothing to click through to.
+- [ ] **Repo for Agentic AI.** AI PDF Chatbot now links to
+      `github.com/pasindu9999/AI-chatbot`. Agentic AI & LLM Engineering — the
+      project leading the whole ledger — still has no `repo:` and nothing to
+      click. Add it if public.
+- [ ] **Live demos.** None yet, noted as future work. Whenever one exists, add
+      `demo: 'https://...'` to that project's frontmatter — the case study
+      template already renders the link.
 - [ ] **Confirm the publish dates on the two posts.** I chose
       2026-08-14 (RAG/agents) and 2026-06-05 (Clean Architecture) — change
       `pubDate` in `src/content/posts/*.md` if they should be different.

@@ -5,9 +5,13 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // Drives canonical URLs, OG tags and the sitemap.
-  // TODO: swap for the real production domain before cutover.
-  site: 'https://udara-portfolio.netlify.app',
+  // The canonical public address of the site. Astro does not use this to
+  // deploy anywhere -- it is stamped into the generated HTML: every
+  // <link rel="canonical">, every og:image / og:url, and every <loc> in
+  // sitemap-index.xml. If it does not match the address people actually visit,
+  // Google is told the real pages live somewhere else.
+  // Change this the day a custom domain is added.
+  site: 'https://udara-kurukulasooriya-portolio.netlify.app',
   output: 'static',
 
   integrations: [sitemap()],

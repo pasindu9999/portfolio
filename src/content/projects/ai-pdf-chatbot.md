@@ -17,6 +17,7 @@ year: 2026
 role: 'Sole engineer'
 timeline: '2026'
 context: 'Retrieval-augmented generation system'
+repo: 'https://github.com/pasindu9999/AI-chatbot'
 featured: true
 order: 2
 ---
