@@ -1,0 +1,145 @@
+---
+/**
+ * Signature #1 -- the marginalia index.
+ * A persistent numbered index in the left gutter that tracks scroll with a
+ * sliding hairline marker: navigation, progress indicator and typographic
+ * element in one. Collapses to a bottom-edge progress rule on narrow screens.
+ */
+interface Props {
+  sections: { id: string; label: string }[];
+}
+const { sections } = Astro.props;
+---
+
+<nav class="marginalia" aria-label="Section index">
+  <ol>
+    {
+      sections.map((section, i) => (
+        <li>
+          <a href={`#${section.id}`} data-marginalia-link={section.id}>
+            <span class="marginalia__num">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="marginalia__label">{section.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .marginalia {
+    position: fixed;
+    inset-block-start: 50%;
+    inset-inline-start: var(--space-2xs);
+    translate: 0 -50%;
+    z-index: 40;
+    display: none;
+  }
+
+  /* Only show it once there is a real gutter to put it in. The matching
+     body padding is reserved in layout.css at this exact breakpoint. */
+  @media (width >= 90rem) {
+    .marginalia { display: block; }
+  }
+
+  .marginalia ol {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .marginalia a {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-block: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink-subtle);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .marginalia__num {
+    /* The hairline marker: a rule that grows and takes the accent when the
+       section it points at is the one on screen. */
+    position: relative;
+  }
+  .marginalia__num::after {
+    content: '';
+    position: absolute;
+    inset-block-end: -2px;
+    inset-inline-start: 0;
+    block-size: 1px;
+    inline-size: 0;
+    background-color: var(--accent);
+    transition: inline-size var(--dur) var(--ease-out);
+  }
+
+  .marginalia__label {
+    opacity: 0;
+    translate: -4px 0;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      translate var(--dur) var(--ease-out);
+  }
+
+  .marginalia:hover .marginalia__label,
+  .marginalia a:focus-visible .marginalia__label {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .marginalia a:hover,
+  .marginalia a[aria-current='true'] {
+    color: var(--ink);
+  }
+  .marginalia a[aria-current='true'] .marginalia__num::after {
+    inline-size: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marginalia__num::after,
+    .marginalia__label { transition: none; }
+  }
+</style>
+
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>(
+    '[data-marginalia-link]',
+  );
+  if (links.length) {
+    const byId = new Map<string, HTMLAnchorElement>();
+    links.forEach((a) =>
+      byId.set(a.dataset.marginaliaLink as string, a),
+    );
+
+    const targets = [...byId.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    let current = '';
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const id = entry.target.id;
+          if (id === current) continue;
+          if (current) byId.get(current)?.removeAttribute('aria-current');
+          byId.get(id)?.setAttribute('aria-current', 'true');
+          current = id;
+        }
+      },
+      // Fire when a section crosses the middle band of the viewport.
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+
+    targets.forEach((el) => observer.observe(el));
+  }
+</script>

@@ -1,0 +1,522 @@
+---
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import MarginaliaIndex from '../components/MarginaliaIndex.astro';
+import WorkLedger from '../components/WorkLedger.astro';
+import { SITE, BIO, SKILLS, EXPERIENCE, EDUCATION } from '../data/site';
+
+const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const selected = projects.find((p) => p.data.featured) ?? projects[0];
+const year = new Date().getFullYear();
+
+const SECTIONS = [
+  { id: 'index', label: 'Index' },
+  { id: 'work', label: 'Work' },
+  { id: 'selected', label: 'Selected' },
+  { id: 'colophon', label: 'Colophon' },
+  { id: 'contact', label: 'Contact' },
+];
+---
+
+<BaseLayout title={`${SITE.name} — ${SITE.role}`} description={SITE.description}>
+  <SiteHeader slot="header" docking />
+  <SiteFooter slot="footer" />
+
+  <MarginaliaIndex sections={SECTIONS} />
+
+  <!-- ============ 01 MASTHEAD ============ -->
+  <section id="index" class="masthead">
+    <p class="eyebrow masthead__eyebrow">
+      {SITE.role} — portfolio — {year}
+    </p>
+
+    <h1 class="masthead__anchor">
+      <span class="masthead__line-1">Udara</span>
+      <span class="masthead__line-2">Kurukula</span>
+      <span class="masthead__line-3">sooriya</span>
+    </h1>
+
+    <div class="masthead__rail">
+      <dl>
+        <div><dt>Role</dt><dd>{SITE.role}</dd></div>
+        <div><dt>Focus</dt><dd>Full-stack &middot; applied GenAI</dd></div>
+        <div><dt>Based</dt><dd>{SITE.location}</dd></div>
+        <div><dt>Status</dt><dd class="masthead__status">Open to roles</dd></div>
+      </dl>
+      <p class="masthead__intro measure">{BIO}</p>
+    </div>
+  </section>
+
+  <!-- ============ 02 WORK LEDGER ============ -->
+  <section id="work" class="section-block wrap">
+    <div class="rule-labelled">
+      <span class="label">02 /</span><span class="label">Selected work</span>
+    </div>
+    <WorkLedger projects={projects} />
+  </section>
+
+  <!-- ============ 03 SELECTED — the deliberate grid break ============ -->
+  {
+    selected && selected.data.cover && (
+      <section id="selected" class="selected">
+        <div class="selected__media" data-reveal>
+          <Picture
+            src={selected.data.cover}
+            alt={selected.data.coverAlt ?? selected.data.title}
+            formats={['avif', 'webp']}
+            widths={[480, 800, 1200, 1600]}
+            sizes="(min-width: 64rem) 58vw, 100vw"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="selected__body" data-reveal>
+          <p class="eyebrow">03 / In focus</p>
+          <h2 class="selected__title">{selected.data.title}</h2>
+          <p class="measure">{selected.data.blurb}</p>
+          <dl class="spec">
+            {selected.data.context && (
+              <div>
+                <dt>Context</dt>
+                <dd>{selected.data.context}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Role</dt>
+              <dd>{selected.data.role}</dd>
+            </div>
+            <div>
+              <dt>Stack</dt>
+              <dd>{selected.data.tags.join(' · ')}</dd>
+            </div>
+            <div>
+              <dt>Timeline</dt>
+              <dd>{selected.data.timeline}</dd>
+            </div>
+          </dl>
+          <a class="btn" href={`/work/${selected.id}/`}>
+            Read the case study <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ============ 04 COLOPHON ============ -->
+  <section id="colophon" class="section-block wrap">
+    <div class="rule-labelled">
+      <span class="label">04 /</span><span class="label">Colophon</span>
+    </div>
+
+    <div class="colophon">
+      <div class="colophon__lead">
+        <h2>Engineer, end to end.</h2>
+        <p class="measure">{BIO}</p>
+      </div>
+
+      <div class="colophon__sheet">
+        <dl class="spec">
+          {
+            EXPERIENCE.map((job) => (
+              <div>
+                <dt>{job.period}</dt>
+                <dd>
+                  {job.title}
+                  <span class="colophon__sub">{job.company}</span>
+                </dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt>{EDUCATION.period}</dt>
+            <dd>
+              {EDUCATION.qualification}
+              <span class="colophon__sub">
+                {EDUCATION.institution} · {EDUCATION.result}
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        {
+          SKILLS.map((group) => (
+            <div class="skills">
+              <p class="eyebrow">{group.group}</p>
+              <ul>
+                {group.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 CONTACT ============ -->
+  <section id="contact" class="section-block wrap">
+    <div class="rule-labelled">
+      <span class="label">05 /</span><span class="label">Contact</span>
+    </div>
+
+    <div class="contact">
+      <div>
+        <h2 class="contact__statement">
+          Let’s build<br />something that<br />
+          <span class="contact__accent">actually ships.</span>
+        </h2>
+        <ul class="contact__direct">
+          <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+          <li>
+            <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
+              LinkedIn<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a href={SITE.github} rel="noopener noreferrer" target="_blank">
+              GitHub<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {/*
+        Netlify Forms: this must stay static markup. Netlify's build-time bot
+        only detects forms present in the emitted HTML, so it must never move
+        into a client-rendered island.
+      */}
+      <form
+        class="contact__form"
+        name="contact"
+        method="POST"
+        action="/thanks/"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="sr-only">
+          <label
+            >Leave this field empty <input name="bot-field" tabindex="-1" /></label
+          >
+        </p>
+
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button class="btn btn--fill" type="submit">Send</button>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-inline-size: 78rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    padding: var(--space-xl) var(--gutter) var(--space-2xl);
+    max-inline-size: 90rem;
+    margin-inline: auto;
+  }
+  .masthead__eyebrow {
+    margin-block-end: var(--space-m);
+  }
+
+  .masthead__anchor {
+    font-size: var(--step-anchor);
+    line-height: 0.82;
+    letter-spacing: -0.045em;
+    font-weight: 500;
+    text-transform: uppercase;
+    display: grid;
+  }
+  /* The asymmetry. Three lines, each staggered off the last, with the final
+     syllable dropping to the accent. Splitting the surname across two lines
+     is also what keeps the longest line short enough never to overflow. */
+  .masthead__line-1 {
+    justify-self: start;
+  }
+  .masthead__line-2 {
+    justify-self: center;
+  }
+  .masthead__line-3 {
+    justify-self: end;
+    color: var(--accent);
+  }
+  @media (width >= 48rem) {
+    .masthead__line-2 {
+      justify-self: end;
+      padding-inline-end: 8%;
+    }
+    .masthead__line-3 {
+      padding-inline-end: 0;
+    }
+  }
+
+  .masthead__rail {
+    margin-block-start: var(--space-xl);
+    display: grid;
+    gap: var(--space-m);
+    border-block-start: 1px solid var(--rule);
+    padding-block-start: var(--space-s);
+  }
+  @media (width >= 60rem) {
+    .masthead__rail {
+      grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+  .masthead__rail dl {
+    display: grid;
+    gap: var(--space-2xs);
+    align-content: start;
+  }
+  .masthead__rail dl > div {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--space-2xs);
+  }
+  .masthead__rail dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+  }
+  .masthead__rail dd {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .masthead__status {
+    color: var(--accent);
+  }
+  .masthead__intro {
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+
+  /* ---------- Selected: full-bleed asymmetric break ---------- */
+  .selected {
+    margin-block: var(--space-3xl);
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (width >= 64rem) {
+    .selected {
+      grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+      align-items: center;
+      gap: var(--space-xl);
+      padding-inline-end: var(--gutter);
+    }
+    /* Breaks the page wrapper and bleeds off the left edge. */
+    .selected__media {
+      margin-inline-start: calc(var(--gutter) * -1);
+    }
+  }
+  .selected__media :global(img) {
+    inline-size: 100%;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+  }
+  .selected__body {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    padding-inline: var(--gutter);
+  }
+  @media (width >= 64rem) {
+    .selected__body {
+      padding-inline: 0;
+    }
+  }
+  .selected__title {
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+  }
+
+  /* ---------- Spec sheet ---------- */
+  .spec {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .spec > div {
+    display: grid;
+    grid-template-columns: 10.5rem 1fr;
+    gap: var(--space-s);
+    padding-block: var(--space-2xs);
+    border-block-start: 1px solid var(--rule);
+  }
+  .spec dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+  }
+  .spec dd {
+    font-size: var(--step--1);
+    display: grid;
+    gap: 2px;
+  }
+  .colophon__sub {
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+  }
+
+  /* ---------- Colophon ---------- */
+  .colophon {
+    display: grid;
+    gap: var(--space-xl);
+    margin-block-start: var(--space-l);
+  }
+  @media (width >= 64rem) {
+    .colophon {
+      grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+      gap: var(--space-2xl);
+    }
+  }
+  .colophon__lead h2 {
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    margin-block-end: var(--space-s);
+  }
+  .colophon__sheet {
+    display: grid;
+    gap: var(--space-m);
+  }
+  /* Skills read as a dense tag field rather than a rated list. The CV states
+     no proficiency levels, and inventing them would be fabrication. */
+  .skills ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+  .skills li {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 2px var(--space-2xs);
+  }
+
+  /* ---------- Contact ---------- */
+  .contact {
+    display: grid;
+    gap: var(--space-xl);
+    margin-block-start: var(--space-l);
+  }
+  @media (width >= 64rem) {
+    .contact {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .contact__statement {
+    font-size: var(--step-5);
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+  .contact__accent {
+    color: var(--accent);
+  }
+  .contact__direct {
+    list-style: none;
+    margin-block-start: var(--space-m);
+    display: grid;
+    gap: var(--space-3xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  .contact__form {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+  .field {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .field label {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+  }
+  .field input,
+  .field textarea {
+    inline-size: 100%;
+    padding: var(--space-2xs) 0;
+    border-block-end: 1px solid var(--rule-strong);
+    background: transparent;
+    font-size: var(--step-0);
+    border-radius: 0;
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline-offset: 4px;
+  }
+  .field textarea {
+    resize: vertical;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-decoration: none;
+    padding: var(--space-2xs) var(--space-s);
+    border: 1px solid var(--rule-strong);
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn:hover {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .btn--fill {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .btn--fill:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+</style>

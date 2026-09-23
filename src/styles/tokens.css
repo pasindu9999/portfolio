@@ -1,0 +1,167 @@
+/* =========================================================================
+   TOKENS
+   Two tiers:
+     1. Primitive  -- raw values, theme-agnostic, never used by components.
+     2. Semantic   -- what components actually consume. Remapped per theme.
+
+   The override set between themes is deliberately ASYMMETRIC. This is not an
+   inversion: the accent changes hue, and elevation is expressed differently
+   (light = lighter surface + shadow, dark = lighter surface + hairline, no
+   shadow) because shadows do not read on near-black.
+   ========================================================================= */
+
+:root {
+  /* --- Primitive: paper ramp (warm) --- */
+  --paper-50:  #fbfaf7;
+  --paper-100: #f4f1eb;
+  --paper-200: #e8e4db;
+  --paper-300: #d8d3c7;
+
+  /* --- Primitive: ink ramp (warm near-black -> warm off-white) --- */
+  --ink-900: #16130f;
+  --ink-700: #3a352d;
+  --ink-500: #5c574e;
+  --ink-400: #7a7469;
+  --ink-200: #a29d93;
+  --ink-100: #edeae3;
+
+  /* --- Primitive: night ramp (cool) --- */
+  --night-900: #08090b;
+  --night-800: #0c0d10;
+  --night-700: #16181d;
+  --night-600: #202329;
+
+  /* --- Primitive: accents --- */
+  --blue-600:   #1f3ae0;  /* light-theme accent */
+  --blue-700:   #1830b8;
+  --citron-400: #d8ff47;  /* dark-theme accent */
+  --citron-500: #c2e82f;
+
+}
+
+/* Light values live on BOTH :root and [data-theme='light'] so a subtree can be
+   forced to either theme -- which is what lets the styleguide render the two
+   side by side, and what makes the attribute a true single-value slot. */
+:root,
+[data-theme='light'] {
+  /* ---------------------------------------------------------------------
+     SEMANTIC -- light theme ("paper") is the default.
+     Measured contrast (npm run check:contrast):
+       ink 16.4:1   ink-muted 6.4:1   accent 6.8:1   accent-ink/accent 7.7:1
+       ink-subtle 4.1:1 -> large text and non-text UI only, never body copy.
+     --------------------------------------------------------------------- */
+  --surface:        var(--paper-100);
+  --surface-raised: var(--paper-50);
+  --surface-sunken: var(--paper-200);
+  --ink:            var(--ink-900);
+  --ink-muted:      var(--ink-500);
+  --ink-subtle:     var(--ink-400);
+  --rule:           rgb(22 19 15 / 0.14);
+  --rule-strong:    rgb(22 19 15 / 0.32);
+  --accent:         var(--blue-600);
+  --accent-hover:   var(--blue-700);
+  --accent-ink:     #ffffff;
+  --focus:          var(--blue-600);
+  --selection-bg:   var(--blue-600);
+  --selection-ink:  #ffffff;
+
+  /* Elevation differs per theme by design. */
+  --elevation: 0 1px 2px rgb(22 19 15 / 0.06), 0 8px 24px -8px rgb(22 19 15 / 0.12);
+  /* Imagery: full saturation on paper. */
+  --img-filter: none;
+}
+
+/* Measured contrast: ink 16.2:1  ink-muted 7.2:1  accent 17.0:1
+   ink-subtle 3.6:1 -> large text and non-text UI only. */
+[data-theme='dark'] {
+  --surface:        var(--night-800);
+  --surface-raised: var(--night-700);
+  --surface-sunken: var(--night-900);
+  --ink:            var(--ink-100);
+  --ink-muted:      var(--ink-200);
+  --ink-subtle:     #6e6960;
+  --rule:           rgb(237 234 227 / 0.16);
+  --rule-strong:    rgb(237 234 227 / 0.36);
+  --accent:         var(--citron-400);
+  --accent-hover:   var(--citron-500);
+  --accent-ink:     var(--night-800);
+  --focus:          var(--citron-400);
+  --selection-bg:   var(--citron-400);
+  --selection-ink:  var(--night-800);
+
+  /* No shadow on near-black -- elevation reads as a luminous hairline. */
+  --elevation: 0 0 0 1px rgb(237 234 227 / 0.08);
+  /* Full-saturation photography glares against a dark field. */
+  --img-filter: saturate(0.85) brightness(0.88) contrast(1.02);
+}
+
+/* ---------------------------------------------------------------------------
+   NO-JS FALLBACK.
+   The blocking inline script normally sets data-theme on <html> before paint,
+   so this never applies in practice. With scripting disabled there is no
+   attribute at all, and without this block a dark-mode visitor would be served
+   the light theme.
+
+   KEEP IN SYNC with the [data-theme='dark'] block above.
+   --------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --surface:        var(--night-800);
+    --surface-raised: var(--night-700);
+    --surface-sunken: var(--night-900);
+    --ink:            var(--ink-100);
+    --ink-muted:      var(--ink-200);
+    --ink-subtle:     #6e6960;
+    --rule:           rgb(237 234 227 / 0.16);
+    --rule-strong:    rgb(237 234 227 / 0.36);
+    --accent:         var(--citron-400);
+    --accent-hover:   var(--citron-500);
+    --accent-ink:     var(--night-800);
+    --focus:          var(--citron-400);
+    --selection-bg:   var(--citron-400);
+    --selection-ink:  var(--night-800);
+    --elevation:      0 0 0 1px rgb(237 234 227 / 0.08);
+    --img-filter:     saturate(0.85) brightness(0.88) contrast(1.02);
+    color-scheme: dark;
+  }
+}
+
+:root {
+  /* --- Fluid type scale (320px -> 1440px viewport) --- */
+  --step--2: clamp(0.69rem, 0.66rem + 0.14vw, 0.79rem);
+  --step--1: clamp(0.83rem, 0.78rem + 0.26vw, 1.00rem);
+  --step-0:  clamp(1.00rem, 0.91rem + 0.43vw, 1.25rem);
+  --step-1:  clamp(1.20rem, 1.07rem + 0.67vw, 1.56rem);
+  --step-2:  clamp(1.44rem, 1.24rem + 1.00vw, 1.95rem);
+  --step-3:  clamp(1.73rem, 1.44rem + 1.44vw, 2.44rem);
+  --step-4:  clamp(2.07rem, 1.67rem + 2.03vw, 3.05rem);
+  --step-5:  clamp(2.49rem, 1.92rem + 2.83vw, 3.82rem);
+  --step-6:  clamp(2.99rem, 2.21rem + 3.89vw, 4.77rem);
+  --step-7:  clamp(3.58rem, 2.53rem + 5.27vw, 5.96rem);
+  /* The masthead anchor. Intentionally outside the ramp -- it is a graphic.
+     Tuned so the longest line ("KURUKULA", 8 chars) fits the viewport at every
+     size. Do not raise this without re-checking the longest line. */
+  --step-anchor: clamp(2.75rem, 14.5vw, 13rem);
+
+  /* --- Fluid space scale --- */
+  --space-3xs: clamp(0.25rem, 0.24rem + 0.05vw, 0.31rem);
+  --space-2xs: clamp(0.50rem, 0.48rem + 0.11vw, 0.63rem);
+  --space-xs:  clamp(0.75rem, 0.72rem + 0.16vw, 0.94rem);
+  --space-s:   clamp(1.00rem, 0.96rem + 0.21vw, 1.25rem);
+  --space-m:   clamp(1.50rem, 1.43rem + 0.32vw, 1.88rem);
+  --space-l:   clamp(2.00rem, 1.91rem + 0.43vw, 2.50rem);
+  --space-xl:  clamp(3.00rem, 2.87rem + 0.64vw, 3.75rem);
+  --space-2xl: clamp(4.00rem, 3.83rem + 0.86vw, 5.00rem);
+  --space-3xl: clamp(6.00rem, 5.74rem + 1.29vw, 7.50rem);
+
+  /* --- Grid --- */
+  --gutter: var(--space-s);
+  --measure: 68ch;
+
+  /* --- Motion --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 150ms;
+  --dur: 280ms;
+  --dur-slow: 560ms;
+}

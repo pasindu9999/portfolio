@@ -1,0 +1,64 @@
+/* =========================================================================
+   GLOBAL ENTRY
+   Order matters: Tailwind first (it establishes the native cascade layers),
+   then our tokens/base/layout so hand-written rules have predictable
+   precedence against utilities without an !important arms race.
+   ========================================================================= */
+
+@import 'tailwindcss';
+
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './motion.css';
+
+/* Theming is driven by an attribute, not a class, so the dark variant has to
+   be declared explicitly for Tailwind's `dark:` utilities to work. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* `inline` is the key: it substitutes the value into each utility rather than
+   emitting a --color-* indirection. Without it, utilities would freeze the
+   light-theme value at build time and runtime theme swapping would not reach
+   them. */
+@theme inline {
+  --color-surface:        var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-ink:            var(--ink);
+  --color-ink-muted:      var(--ink-muted);
+  --color-ink-subtle:     var(--ink-subtle);
+  --color-rule:           var(--rule);
+  --color-rule-strong:    var(--rule-strong);
+  --color-accent:         var(--accent);
+  --color-accent-hover:   var(--accent-hover);
+  --color-accent-ink:     var(--accent-ink);
+
+  /* Astro's Fonts API owns --face-*; Tailwind's font namespace is --font-*.
+     They are deliberately different names -- pointing --font-display at
+     itself is a circular reference that silently kills the declaration. */
+  --font-display: var(--face-display);
+  --font-body:    var(--face-body);
+  --font-mono:    var(--face-mono);
+
+  --text-2xs: var(--step--2);
+  --text-xs:  var(--step--1);
+  --text-base: var(--step-0);
+  --text-lg:  var(--step-1);
+  --text-xl:  var(--step-2);
+  --text-2xl: var(--step-3);
+  --text-3xl: var(--step-4);
+  --text-4xl: var(--step-5);
+  --text-5xl: var(--step-6);
+  --text-6xl: var(--step-7);
+  --text-anchor: var(--step-anchor);
+
+  --spacing-3xs: var(--space-3xs);
+  --spacing-2xs: var(--space-2xs);
+  --spacing-xs:  var(--space-xs);
+  --spacing-s:   var(--space-s);
+  --spacing-m:   var(--space-m);
+  --spacing-l:   var(--space-l);
+  --spacing-xl:  var(--space-xl);
+  --spacing-2xl: var(--space-2xl);
+  --spacing-3xl: var(--space-3xl);
+}

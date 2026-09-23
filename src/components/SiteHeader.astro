@@ -1,0 +1,114 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { SITE } from '../data/site';
+
+interface Props {
+  /** The home page owns the big masthead, so its wordmark docks in on scroll. */
+  docking?: boolean;
+}
+const { docking = false } = Astro.props;
+
+const NAV = [
+  { href: '/#work', label: 'Work' },
+  { href: '/about', label: 'About' },
+  { href: '/writing', label: 'Writing' },
+  { href: '/#contact', label: 'Contact' },
+];
+---
+
+<header class="site-header" class:list={[{ 'is-docking': docking }]}>
+  <a class="site-header__mark" href="/" aria-label={`${SITE.name} — home`}>
+    <span aria-hidden="true">UK</span>
+    <span class="sr-only">{SITE.name}</span>
+  </a>
+
+  <nav aria-label="Primary">
+    <ul>
+      {
+        NAV.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <ThemeToggle />
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: var(--space-2xs) var(--gutter);
+    border-block-end: 1px solid var(--rule);
+    background-color: color-mix(in srgb, var(--surface) 82%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-header__mark {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  /* Signature #2: the wordmark docks in as the masthead leaves.
+     NOTE: Google serves Bricolage Grotesque with only the weight axis
+     varying (stretch is fixed at 100%), so this animates `font-weight` and
+     letter-spacing rather than the `wdth` axis. Same "condensing" read, and
+     unlike a width axis it actually exists in the file we ship. */
+  .site-header.is-docking .site-header__mark {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .site-header.is-docking .site-header__mark {
+        animation: mark-dock linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 55svh;
+      }
+    }
+  }
+
+  @keyframes mark-dock {
+    from {
+      opacity: 0;
+      font-weight: 250;
+      letter-spacing: 0.08em;
+    }
+    to {
+      opacity: 1;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+    }
+  }
+
+  .site-header nav ul {
+    display: flex;
+    gap: var(--space-s);
+    list-style: none;
+  }
+
+  .site-header nav a {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--ink-muted);
+  }
+  .site-header nav a:hover { color: var(--accent); }
+
+  @media (width < 34rem) {
+    .site-header nav ul { gap: var(--space-xs); }
+    .site-header nav a { font-size: var(--step--2); }
+  }
+</style>

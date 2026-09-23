@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    :root { --bg: #f4f1eb; --fg: #16130f; --ac: #1f3ae0; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0c0d10; --fg: #edeae3; --ac: #d8ff47; }
+    }
+  </style>
+  <rect width="32" height="32" fill="var(--bg)"/>
+  <rect x="0" y="27" width="32" height="2" fill="var(--ac)"/>
+  <text x="16" y="21" font-family="Helvetica, Arial, sans-serif" font-size="17"
+        font-weight="700" letter-spacing="-1" text-anchor="middle"
+        fill="var(--fg)">UK</text>
+</svg>

@@ -1,0 +1,92 @@
+/* =========================================================================
+   LAYOUT -- the editorial grid
+   One named 12-column grid with a full-bleed escape hatch. This is what makes
+   "unexpected grid breaks" systematic rather than random: children default to
+   the content span, and anything that breaks out does so by claiming a NAMED
+   line, not by an ad-hoc negative margin.
+   ========================================================================= */
+
+.grid-editorial {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [content-start] repeat(12, minmax(0, 5.5rem)) [content-end]
+    minmax(var(--gutter), 1fr) [full-end];
+  column-gap: var(--space-s);
+}
+
+/* Default placement: every direct child sits in the content span. */
+.grid-editorial > * {
+  grid-column: content;
+}
+
+/* --- Escape hatches, by name --- */
+.span-full        { grid-column: full; }
+.span-content     { grid-column: content; }
+/* Overhang a single gutter -- the asymmetric break. */
+.span-bleed-left  { grid-column: full-start / content-end; }
+.span-bleed-right { grid-column: content-start / full-end; }
+
+/* --- Column spans within the content grid (desktop) --- */
+@media (width >= 60rem) {
+  .col-1-5  { grid-column: content-start / span 5; }
+  .col-1-6  { grid-column: content-start / span 6; }
+  .col-1-7  { grid-column: content-start / span 7; }
+  .col-1-8  { grid-column: content-start / span 8; }
+  .col-3-8  { grid-column: content-start 3 / span 6; }
+  .col-6-12 { grid-column: content-start 6 / content-end; }
+  .col-7-12 { grid-column: content-start 7 / content-end; }
+  .col-8-12 { grid-column: content-start 8 / content-end; }
+  .col-9-12 { grid-column: content-start 9 / content-end; }
+}
+
+/* --- Vertical rhythm --- */
+.section-block { padding-block: var(--space-3xl); }
+.stack > * + * { margin-block-start: var(--flow, var(--space-s)); }
+.measure { max-width: var(--measure); }
+
+/* --- Hairline rules: the structural signature --- */
+.rule {
+  border: 0;
+  border-block-start: 1px solid var(--rule);
+}
+.rule-strong { border-block-start-color: var(--rule-strong); }
+
+/* A rule that carries a mono label, e.g. "01 / SELECTED WORK" */
+.rule-labelled {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-s);
+  padding-block-start: var(--space-2xs);
+  border-block-start: 1px solid var(--rule);
+}
+.rule-labelled > .label {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+/* --- Mono metadata --- */
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.02em;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+/* The marginalia index is position: fixed in the left gutter. Reserve that
+   column globally at the same breakpoint it appears, or it overlaps content. */
+@media (width >= 90rem) {
+  body {
+    padding-inline-start: 4.5rem;
+  }
+}

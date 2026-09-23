@@ -1,0 +1,104 @@
+/* =========================================================================
+   MOTION
+   Non-negotiable rule: content is VISIBLE BY DEFAULT in the HTML. Nothing
+   here ships `opacity: 0` that JS or an unsupported feature must undo --
+   that is how a support gap turns into a blank page for a user or a crawler.
+
+   Layering, outermost first:
+     1. @media (prefers-reduced-motion: no-preference)  -- opt in
+     2. @supports (animation-timeline: view())          -- free, 0 KB path
+     3. html.js-reveal                                  -- IO shim, only added
+        by script when (2) is unsupported, so the two never double up.
+   ========================================================================= */
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift, 1.25rem));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* --- Path 1: native scroll-driven animation. Zero JS, off main thread. --- */
+  @supports (animation-timeline: view()) {
+    [data-reveal] {
+      /* Longhands on purpose. The `animation` shorthand resets
+         animation-duration to 0s, and a scroll-driven animation needs `auto`
+         for the timeline to drive progress -- with 0s the element stays
+         pinned at the `from` keyframe (opacity: 0) and the content is
+         invisible. */
+      animation-name: reveal-in;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-duration: auto;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+
+  /* --- Path 2: IntersectionObserver shim. The start state is scoped behind
+     a class the script only adds when path 1 is unavailable. --- */
+  html.js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift, 1.25rem));
+    transition:
+      opacity var(--dur-slow) var(--ease-out),
+      transform var(--dur-slow) var(--ease-out);
+  }
+  html.js-reveal [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   VIEW TRANSITIONS
+   Cross-document, declarative. No client router, so the blocking theme script
+   in <head> re-runs in the new document before first paint and the theme
+   simply survives navigation.
+   ========================================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* The ledger -> case-study morph. Shared names are assigned per-project in
+   the markup; this only governs the timing. */
+::view-transition-group(*) {
+  animation-duration: var(--dur);
+  animation-timing-function: var(--ease-out);
+}
+
+/* --- Theme wipe: a circular reveal originating at the toggle. --- */
+html.theme-wiping::view-transition-old(root) {
+  animation: none;
+}
+html.theme-wiping::view-transition-new(root) {
+  animation: theme-wipe 520ms var(--ease-out);
+  /* Outgoing frame must not blend through the incoming one, or the wipe
+     reads as a muddy cross-fade instead of a clean edge. */
+  mix-blend-mode: normal;
+}
+html.theme-wiping::view-transition-old(root),
+html.theme-wiping::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+@keyframes theme-wipe {
+  from {
+    clip-path: circle(0 at var(--wipe-x, 50%) var(--wipe-y, 0));
+  }
+  to {
+    clip-path: circle(150vmax at var(--wipe-x, 50%) var(--wipe-y, 0));
+  }
+}

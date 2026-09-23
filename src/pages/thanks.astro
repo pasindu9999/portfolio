@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout
+  title="Message sent"
+  description="Thanks for getting in touch."
+>
+  <SiteHeader slot="header" />
+  <SiteFooter slot="footer" />
+
+  <section class="thanks">
+    <p class="eyebrow">Contact</p>
+    <h1>Message sent.</h1>
+    <p class="measure">
+      Thanks for reaching out. I read everything and reply to most messages
+      within a couple of days.
+    </p>
+    <a class="btn" href="/">Back to the index</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .thanks {
+    max-inline-size: 78rem;
+    margin-inline: auto;
+    padding: var(--space-3xl) var(--gutter);
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+    min-block-size: 60svh;
+    align-content: center;
+  }
+  .thanks h1 { font-size: var(--step-5); letter-spacing: -0.04em; }
+  .btn {
+    display: inline-flex;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-decoration: none;
+    padding: var(--space-2xs) var(--space-s);
+    border: 1px solid var(--rule-strong);
+    margin-block-start: var(--space-s);
+  }
+  .btn:hover { background-color: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+</style>
