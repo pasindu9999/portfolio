@@ -33,6 +33,16 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    X-Frame-Options = "DENY"
+    # 'unsafe-inline' on script/style is a deliberate trade-off: the site ships
+    # is:inline scripts (theme-flash prevention) and content-generated inline
+    # <style> (CSS-only filter tabs) whose exact bytes shift on ordinary
+    # content edits, so a hash/nonce allowlist would go stale and break the
+    # site on the next project/skill addition. script-src/style-src 'self'
+    # still blocks any externally-hosted or injected <script src>/<link>,
+    # which is the realistic risk for a static site with no server-rendered
+    # user input.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
 # Keep branch/deploy previews out of the index so they never compete with
 # production for the same queries.
