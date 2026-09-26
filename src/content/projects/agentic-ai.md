@@ -19,6 +19,8 @@ year: 2026
 role: 'Sole engineer'
 timeline: '2026'
 context: 'Self-directed engineering project'
+category: 'AI & ML'
+status: 'in-progress'
 featured: true
 order: 2
 ---

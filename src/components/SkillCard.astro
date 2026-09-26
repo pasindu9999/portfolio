@@ -1,0 +1,44 @@
+---
+import Card from './Card.astro';
+
+interface Props {
+  group: string;
+  category: string;
+  items: readonly string[];
+}
+const { group, category, items } = Astro.props;
+---
+
+<Card category={category} class="skill-card">
+  <p class="skill-card__label">{group}</p>
+  <ul class="skill-card__items">
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+</Card>
+
+<style>
+  .skill-card__label {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+    margin-block-end: var(--space-s);
+  }
+
+  /* A dense tag field, not a rated list -- the CV states no proficiency
+     levels and inventing them would be fabrication. */
+  .skill-card__items {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+  }
+  .skill-card__items li {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 2px var(--space-2xs);
+  }
+</style>

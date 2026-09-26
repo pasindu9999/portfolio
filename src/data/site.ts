@@ -23,32 +23,25 @@ export const SITE = {
 export const BIO =
   'Software engineer with three years of full-stack experience delivering enterprise web applications across the .NET and modern TypeScript ecosystems — from legacy-system modernisation to greenfield platform development. Strong grounding in relational data design and API architecture, with recent hands-on specialisation in applied GenAI and LLM engineering: retrieval-augmented generation, parameter-efficient fine-tuning and multi-agent systems.';
 
-export const EDUCATION = {
-  qualification: 'BSc. (Hons) in Information Technology',
-  institution: 'University of Moratuwa, Sri Lanka',
-  period: 'Jan 2020 – Dec 2024',
-  result: 'Second Upper-Class Honours — GPA 3.62',
-  thesis:
-    'Final year thesis: “Automated Movie Content Rating System” — an AI-based system for assessing movie content.',
-} as const;
-
+/**
+ * EXPERIENCE and EDUCATION share one shape so Timeline.astro can merge and
+ * sort them chronologically. `start` is an ISO-ish 'YYYY-MM' sort key;
+ * `period` is the human-readable label actually rendered.
+ */
 export const EXPERIENCE = [
   {
     title: 'Software Engineer',
-    company: 'Avonet Technologies',
+    org: 'Avonet Technologies',
+    start: '2025-08',
     period: 'Aug 2025 – Present',
     duration: 'Current',
-    summary:
-      'Two parallel tracks: modernising a legacy Clarion application into C# .NET MVC, and building the shared platform layer behind a no-code machine-learning studio.',
     highlights: [
-      'Converting legacy Clarion application logic into a modern C# .NET MVC architecture, including migration and refactoring of stored procedures and core business logic.',
-      'Built responsive grid views and reusable UI components with Kendo UI, wiring dynamic in-grid data loading to backend stored procedures through MVC patterns.',
-      'On Kinetix ML Studio, contributed to the shared application platform — a pnpm/Turborepo monorepo with a NestJS API and a Next.js front end.',
-      'Implemented authentication and role-based access control, enforcing a database-driven privilege matrix (CASL) across API routes with Keycloak and Auth.js session handling.',
-      'Built master-data and audit-trail modules on Prisma over PostgreSQL, with Zod schemas shared across backend and frontend so validation, typing and API docs derive from a single contract.',
-      'Covered platform endpoints with automated integration tests using Jest and Testcontainers.',
+      'Legacy Clarion → C# .NET MVC modernisation',
+      'Kendo UI grid components & data binding',
+      'Kinetix ML Studio platform (NestJS + Next.js)',
+      'RBAC & auth — CASL, Keycloak, Auth.js',
     ],
-    stack: [
+    tags: [
       '.NET MVC',
       'C#',
       'Kendo UI',
@@ -64,39 +57,57 @@ export const EXPERIENCE = [
   },
   {
     title: 'Software Engineer',
-    company: 'Sitecore',
+    org: 'Sitecore',
+    start: '2024-09',
     period: 'Sep 2024 – Jul 2025',
     duration: '11 months',
-    summary:
-      'Built and maintained scalable web applications on .NET 7 and Angular, and supported partner implementations across the Moosend, Send, Discover and Sitecore Search products.',
     highlights: [
-      'Developed and maintained scalable web applications using .NET 7 and Angular, improving overall system efficiency.',
-      'Provided technical support for Moosend, Send, Discover and Sitecore Search, diagnosing and resolving partner implementation issues.',
-      'Deconstructed and analysed partner implementations to identify and resolve technical issues.',
-      'Worked in Agile ceremonies — sprint planning, stand-ups and retrospectives — tracking work in JIRA.',
+      '.NET 7 & Angular web application development',
+      'Partner support — Moosend, Send, Discover, Sitecore Search',
+      'Agile delivery — sprint planning & JIRA tracking',
     ],
-    stack: ['.NET 7', 'Angular', 'TypeScript', 'SQL Server'],
+    tags: ['.NET 7', 'Angular', 'TypeScript', 'SQL Server'],
   },
   {
     title: 'Software Engineer Intern',
-    company: 'IFS R&D International (Pvt) Ltd',
+    org: 'IFS R&D International (Pvt) Ltd',
+    start: '2022-12',
     period: 'Dec 2022 – Jul 2023',
     duration: '8 months',
-    summary:
-      'Built and optimised features for Team ALE on Angular and .NET, with a focus on performance, maintainability and code quality.',
     highlights: [
-      'Developed and optimised new features for Team ALE using Angular and .NET, ensuring high performance and scalability.',
-      'Enhanced application functionality for better maintainability and efficiency.',
-      'Performed unit testing and took part in peer code reviews to raise code quality and compliance with best practice.',
+      'Angular & .NET feature development — Team ALE',
+      'Performance & maintainability improvements',
+      'Unit testing & peer code review',
     ],
-    stack: ['Angular', '.NET Framework', 'C#', 'SQL Server'],
+    tags: ['Angular', '.NET Framework', 'C#', 'SQL Server'],
   },
 ] as const;
 
-/** Grouped as on the CV. */
+export const EDUCATION = [
+  {
+    title: 'BSc. (Hons) in Information Technology',
+    org: 'University of Moratuwa, Sri Lanka',
+    start: '2020-01',
+    period: 'Jan 2020 – Dec 2024',
+    duration: '5 years',
+    highlights: ['Final year thesis — Automated Movie Content Rating System'],
+    tags: ['GPA 3.62', 'Second Upper Honours'],
+  },
+] as const;
+
+/** The filter tabs on the homepage's Skills section, in display order. */
+export const SKILL_CATEGORIES = [
+  'Languages & Frameworks',
+  'Databases',
+  'AI/LLM & Data',
+  'Cloud & DevOps',
+] as const;
+
+/** Grouped as on the CV, with a `category` added for the filter tabs. */
 export const SKILLS = [
   {
     group: 'Languages',
+    category: 'Languages & Frameworks',
     items: [
       'C#',
       'TypeScript',
@@ -109,6 +120,7 @@ export const SKILLS = [
   },
   {
     group: 'Frameworks & Libraries',
+    category: 'Languages & Frameworks',
     items: [
       '.NET 7 / Core / MVC',
       'Angular',
@@ -123,6 +135,7 @@ export const SKILLS = [
   },
   {
     group: 'Databases & Data Access',
+    category: 'Databases',
     items: [
       'SQL Server',
       'PostgreSQL',
@@ -135,6 +148,7 @@ export const SKILLS = [
   },
   {
     group: 'GenAI & LLM Engineering',
+    category: 'AI/LLM & Data',
     items: [
       'RAG design & evaluation',
       'ChromaDB / embeddings',
@@ -150,10 +164,12 @@ export const SKILLS = [
   },
   {
     group: 'Cloud & DevOps',
+    category: 'Cloud & DevOps',
     items: ['Azure', 'AWS', 'Docker', 'Azure DevOps', 'Git', 'GitHub'],
   },
   {
     group: 'Tools & Practices',
+    category: 'Cloud & DevOps',
     items: [
       'Agile / Scrum',
       'JIRA',

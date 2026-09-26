@@ -1,0 +1,50 @@
+---
+/**
+ * Shared bordered-card shell for skills and project cards: thin border, no
+ * shadow, matching the ledger/spec sheet language. `category` drives
+ * FilterGroup's show/hide.
+ *
+ * This used to be GlowCard, with a cursor-tracking glow and a spring tilt
+ * driven by a small scoped script. Every card now lives on the homepage,
+ * which ships zero JavaScript, so that script has no page left to run on --
+ * it was removed rather than shipped as dead code. What remains is the
+ * plain accent-border-on-hover treatment that was always the reduced-motion
+ * and touch-device fallback for it.
+ */
+interface Props {
+  category?: string;
+  class?: string;
+}
+const { category, class: className } = Astro.props;
+---
+
+<div class:list={['card', className]} data-category={category} data-reveal>
+  <div class="card__body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .card {
+    display: block;
+  }
+
+  .card__body {
+    position: relative;
+    border: 1px solid var(--rule);
+    background-color: var(--surface);
+    padding: var(--space-s);
+    height: 100%;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .card__body:hover {
+    border-color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card__body {
+      transition: none;
+    }
+  }
+</style>
