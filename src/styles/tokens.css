@@ -32,8 +32,8 @@
   --night-600: #202329;
 
   /* --- Primitive: accents --- */
-  --blue-600:   #1f3ae0;  /* light-theme accent */
-  --blue-700:   #1830b8;
+  --olive-600:  #4a6000;  /* light-theme accent -- a darkened lime, not blue */
+  --olive-700:  #3d5500;
   --citron-400: #d8ff47;  /* dark-theme accent */
   --citron-500: #c2e82f;
 
@@ -47,7 +47,7 @@
   /* ---------------------------------------------------------------------
      SEMANTIC -- light theme ("paper") is the default.
      Measured contrast (npm run check:contrast):
-       ink 16.4:1   ink-muted 6.4:1   accent 6.8:1   accent-ink/accent 7.7:1
+       ink 16.4:1   ink-muted 6.4:1   accent 6.3:1   accent-ink/accent 7.1:1
        ink-subtle 4.1:1 -> large text and non-text UI only, never body copy.
      --------------------------------------------------------------------- */
   --surface:        var(--paper-100);
@@ -58,17 +58,24 @@
   --ink-subtle:     var(--ink-400);
   --rule:           rgb(22 19 15 / 0.14);
   --rule-strong:    rgb(22 19 15 / 0.32);
-  --accent:         var(--blue-600);
-  --accent-hover:   var(--blue-700);
+  --accent:         var(--olive-600);
+  --accent-hover:   var(--olive-700);
   --accent-ink:     #ffffff;
-  --focus:          var(--blue-600);
-  --selection-bg:   var(--blue-600);
+  --focus:          var(--olive-600);
+  --selection-bg:   var(--olive-600);
   --selection-ink:  #ffffff;
 
   /* Elevation differs per theme by design. */
   --elevation: 0 1px 2px rgb(22 19 15 / 0.06), 0 8px 24px -8px rgb(22 19 15 / 0.12);
   /* Imagery: full saturation on paper. */
   --img-filter: none;
+
+  /* Form fields (contact page). Decorative-adjacent but checked for contrast. */
+  --field-bg:     var(--paper-200);
+  --field-border: rgb(22 19 15 / 0.55);
+
+  /* Decorative-only (excluded from contrast checks): the hero texture dots. */
+  --texture: rgb(22 19 15 / 0.07);
 }
 
 /* Measured contrast: ink 16.2:1  ink-muted 7.2:1  accent 17.0:1
@@ -93,6 +100,10 @@
   --elevation: 0 0 0 1px rgb(237 234 227 / 0.08);
   /* Full-saturation photography glares against a dark field. */
   --img-filter: saturate(0.85) brightness(0.88) contrast(1.02);
+
+  --field-bg:     var(--night-900);
+  --field-border: rgb(237 234 227 / 0.45);
+  --texture:      rgb(237 234 227 / 0.05);
 }
 
 /* ---------------------------------------------------------------------------
@@ -122,6 +133,9 @@
     --selection-ink:  var(--night-800);
     --elevation:      0 0 0 1px rgb(237 234 227 / 0.08);
     --img-filter:     saturate(0.85) brightness(0.88) contrast(1.02);
+    --field-bg:       var(--night-900);
+    --field-border:   rgb(237 234 227 / 0.45);
+    --texture:        rgb(237 234 227 / 0.05);
     color-scheme: dark;
   }
 }
@@ -164,4 +178,7 @@
   --dur-fast: 150ms;
   --dur: 280ms;
   --dur-slow: 560ms;
+
+  /* --- Hero texture (dot grid) --- */
+  --texture-size: 24px;
 }

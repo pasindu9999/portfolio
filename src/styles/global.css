@@ -11,6 +11,7 @@
 @import './base.css';
 @import './layout.css';
 @import './motion.css';
+@import './forms.css';
 
 /* Theming is driven by an attribute, not a class, so the dark variant has to
    be declared explicitly for Tailwind's `dark:` utilities to work. */

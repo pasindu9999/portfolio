@@ -66,6 +66,22 @@ const COVERS = [
     meta: 'ANGULAR · .NET FRAMEWORK',
     motif: 'grid',
   },
+  {
+    file: 'performance-appraisal.png',
+    index: '04',
+    kicker: 'ACADEMIC RESEARCH — UOM',
+    title: 'Employee Performance Appraisal System',
+    meta: 'RATING · SALARY INCREMENTS',
+    motif: 'meter',
+  },
+  {
+    file: 'movie-rating.png',
+    index: '05',
+    kicker: 'FINAL YEAR THESIS — UOM',
+    title: 'Automated Movie Content Rating System',
+    meta: 'YOLOV8 · ACTION RECOGNITION',
+    motif: 'reel',
+  },
 ];
 
 function motifSvg(kind) {
@@ -92,13 +108,44 @@ function motifSvg(kind) {
     s += `<line x1="1030" y1="821" x2="1420" y2="821" stroke="${T.rule}" stroke-width="1.5"/>`;
     return s;
   }
-  // grid
-  let s = '';
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 4; c++) {
-      const on = r === 1 && c === 2;
-      s += `<rect x="${1050 + c * 95}" y="${330 + r * 95}" width="72" height="72" fill="${on ? T.accent : T.raised}" stroke="${T.rule}" stroke-width="1.5"/>`;
+  if (kind === 'grid') {
+    let s = '';
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 4; c++) {
+        const on = r === 1 && c === 2;
+        s += `<rect x="${1050 + c * 95}" y="${330 + r * 95}" width="72" height="72" fill="${on ? T.accent : T.raised}" stroke="${T.rule}" stroke-width="1.5"/>`;
+      }
     }
+    return s;
+  }
+  if (kind === 'meter') {
+    // A scorecard: rating criteria as horizontal bars, the overall score
+    // (last, full-width) picked out in accent.
+    const rows = [
+      { label: 'QUALITY', v: 0.72 },
+      { label: 'TIMELINESS', v: 0.6 },
+      { label: 'TEAMWORK', v: 0.85 },
+      { label: 'OVERALL', v: 0.95 },
+    ];
+    let s = '';
+    rows.forEach((row, i) => {
+      const y = 300 + i * 130;
+      const w = Math.round(row.v * 460);
+      const isLast = i === rows.length - 1;
+      s += `<text x="1050" y="${y - 14}" font-family="Helvetica, Arial, sans-serif" font-size="22" letter-spacing="4" fill="${T.subtle}">${esc(row.label)}</text>`;
+      s += `<rect x="1050" y="${y}" width="460" height="34" fill="none" stroke="${T.rule}" stroke-width="1.5"/>`;
+      s += `<rect x="1050" y="${y}" width="${w}" height="34" fill="${isLast ? T.accent : T.raised}"/>`;
+    });
+    return s;
+  }
+  // reel -- a filmstrip of frames, one picked out as the classified frame.
+  let s = '';
+  for (let i = 0; i < 6; i++) {
+    const y = 280 + i * 92;
+    const on = i === 3;
+    s += `<rect x="1050" y="${y}" width="460" height="72" fill="${on ? T.accent : T.raised}" stroke="${T.rule}" stroke-width="1.5"/>`;
+    // Sprocket ticks along the left edge of each frame.
+    s += `<rect x="1030" y="${y + 26}" width="14" height="20" fill="${T.rule}"/>`;
   }
   return s;
 }

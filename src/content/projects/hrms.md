@@ -8,6 +8,7 @@ year: 2023
 role: 'TODO — confirm your role'
 timeline: 'TODO — confirm dates'
 repo: 'https://github.com/pasindu9999/HRMS-System'
+category: 'Enterprise'
 featured: false
 order: 7
 draft: true

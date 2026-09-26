@@ -1,0 +1,248 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Card from './Card.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index: number;
+}
+const { project, index } = Astro.props;
+const { data } = project;
+
+const STATUS_LABEL = {
+  live: 'Live',
+  'in-progress': 'In progress',
+  archived: 'Archived',
+} as const;
+---
+
+<Card category={data.category} class="project-card">
+  {
+    data.cover && (
+      <div class="project-card__media" data-fit={data.coverFit}>
+        <Picture
+          src={data.cover}
+          alt={data.coverAlt ?? data.title}
+          formats={['avif', 'webp']}
+          widths={[320, 480, 640]}
+          sizes="(min-width: 60rem) 24rem, 90vw"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+
+  <div class="project-card__meta">
+    <span class="project-card__index" aria-hidden="true">
+      {String(index).padStart(2, '0')}
+    </span>
+    <span class="project-card__category">{data.category}</span>
+    <span class="project-card__year">{data.year}</span>
+    {
+      data.status && (
+        <span class="project-card__status" data-status={data.status}>
+          {STATUS_LABEL[data.status]}
+        </span>
+      )
+    }
+  </div>
+
+  <h3 class="project-card__title">
+    <a
+      href={`/work/${project.id}/`}
+      style={`view-transition-name: work-${project.id}-title`}
+    >
+      {data.title}
+    </a>
+  </h3>
+
+  <p class="project-card__blurb">{data.blurb}</p>
+
+  <ul class="project-card__tags" aria-label="Stack">
+    {data.tags.slice(0, 3).map((tag) => <li>{tag}</li>)}
+    {
+      data.tags.length > 3 && (
+        <li class="project-card__tags-more">+{data.tags.length - 3}</li>
+      )
+    }
+  </ul>
+
+  <div class="project-card__actions">
+    {
+      data.demo ? (
+        <a
+          class="project-card__action"
+          href={data.demo}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Demo<span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      ) : (
+        <span class="project-card__action" data-disabled aria-disabled="true">
+          Demo
+        </span>
+      )
+    }
+    {
+      data.repo ? (
+        <a
+          class="project-card__action"
+          href={data.repo}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          GitHub<span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      ) : (
+        <span class="project-card__action" data-disabled aria-disabled="true">
+          GitHub
+        </span>
+      )
+    }
+  </div>
+</Card>
+
+<style>
+  .project-card__media {
+    margin-block-end: var(--space-s);
+    margin-inline: calc(var(--space-s) * -1);
+    margin-block-start: calc(var(--space-s) * -1);
+  }
+  .project-card__media :global(img) {
+    inline-size: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .project-card__media[data-fit='contain'] :global(img) {
+    object-fit: contain;
+    background-color: var(--surface-sunken);
+    aspect-ratio: auto;
+    max-block-size: 14rem;
+  }
+
+  .project-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-subtle);
+    margin-block-end: var(--space-2xs);
+  }
+  .project-card__index {
+    letter-spacing: 0.1em;
+  }
+  .project-card__category {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .project-card__year {
+    margin-inline-start: auto;
+  }
+  /* Outlined, not filled -- a lifecycle label, not a badge. */
+  .project-card__status {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 1px var(--space-2xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .project-card__title {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+    margin-block-end: var(--space-2xs);
+  }
+  .project-card__title a {
+    text-decoration: none;
+  }
+  .project-card__title a:hover {
+    color: var(--accent);
+  }
+  /* The stretched-link pattern: this pseudo-element covers the whole card at
+     a low z-index, so a click anywhere on the card (that isn't over a real
+     action button, which sits above it) activates this one link. No JS --
+     the two anchors just occupy the same space at different stack levels,
+     and the browser resolves each click to whichever is on top at that
+     point. */
+  .project-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .project-card__blurb {
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    margin-block-end: var(--space-s);
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-subtle);
+  }
+  .project-card__tags li::after {
+    content: ' ·';
+  }
+  .project-card__tags li:last-child::after {
+    content: '';
+  }
+  .project-card__tags-more {
+    color: var(--accent);
+  }
+
+  .project-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-s);
+  }
+  .project-card__action {
+    /* Raised above the title's card-covering ::after (z-index: 1) so a
+       click here always resolves to this element -- its own link if it has
+       one, or nothing at all if it's the disabled placeholder below. Applied
+       to both states alike: a disabled button must swallow the click rather
+       than let it fall through to the stretched link underneath. */
+    position: relative;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--ink-muted);
+    border: 1px solid var(--rule-strong);
+    padding: var(--space-3xs) var(--space-2xs);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  a.project-card__action:hover,
+  a.project-card__action:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  /* Kept visible rather than omitted -- a missing demo or repo is still
+     information about the project. Not a real control: no href, not
+     focusable, no hover response. */
+  span.project-card__action[data-disabled] {
+    color: var(--ink-subtle);
+    border-color: var(--rule);
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card__action {
+      transition: none;
+    }
+  }
+</style>
