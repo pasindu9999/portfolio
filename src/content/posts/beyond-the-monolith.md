@@ -1,8 +1,8 @@
 ---
-title: 'Beyond the Monolith: What Changes When You Split It Up'
-blurb: 'Splitting a monolith takes a sprint. Knowing whether any of it needed splitting — and living with what microservices actually cost — takes a lot longer.'
+title: "Beyond the Monolith: What Changes When You Split It Up"
+blurb: "Splitting a monolith takes a sprint. Knowing whether any of it needed splitting — and living with what microservices actually cost — takes a lot longer."
 pubDate: 2026-09-25
-tags: ['Microservices', 'System Design', 'Distributed Systems', 'Architecture']
+tags: ["Microservices", "System Design", "Distributed Systems", "Architecture"]
 draft: false
 ---
 

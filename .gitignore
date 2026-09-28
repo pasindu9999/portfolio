@@ -21,3 +21,4 @@ pnpm-debug.log*
 # macOS / Windows
 .DS_Store
 Thumbs.db
+package-lock.json
