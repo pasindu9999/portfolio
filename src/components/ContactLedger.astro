@@ -1,0 +1,85 @@
+---
+/**
+ * A ledger-style key-value card for the contact section's left column --
+ * same look as the masthead rail (ROLE/FOCUS/BASED/STATUS): thin border,
+ * mono uppercase labels.
+ *
+ * This used to also offer a copy-to-clipboard button next to the email,
+ * revealed by a small scoped script. It now lives on the homepage, which
+ * ships zero JavaScript, so the button was dropped -- the mailto link still
+ * does the job.
+ */
+import { SITE } from '../data/site';
+---
+
+<div class="contact-ledger">
+  <dl>
+    <div>
+      <dt>Email</dt>
+      <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+    </div>
+    <div>
+      <dt>LinkedIn</dt>
+      <dd>
+        <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
+          {SITE.linkedin.replace(/^https?:\/\//, '')}
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>GitHub</dt>
+      <dd>
+        <a href={SITE.github} rel="noopener noreferrer" target="_blank">
+          {SITE.github.replace(/^https?:\/\//, '')}
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Based</dt>
+      <dd>{SITE.location}</dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd class="contact-ledger__status">Open to roles</dd>
+    </div>
+  </dl>
+</div>
+
+<style>
+  .contact-ledger {
+    border: 1px solid var(--rule);
+    padding: var(--space-m);
+  }
+  .contact-ledger dl {
+    display: grid;
+    gap: var(--space-s);
+  }
+  .contact-ledger dl > div {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: var(--space-s);
+    padding-block: var(--space-2xs);
+    border-block-start: 1px solid var(--rule);
+  }
+  .contact-ledger dl > div:first-child {
+    border-block-start: none;
+    padding-block-start: 0;
+  }
+  .contact-ledger dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-subtle);
+  }
+  .contact-ledger dd {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    word-break: break-word;
+  }
+  .contact-ledger__status {
+    color: var(--accent);
+  }
+</style>

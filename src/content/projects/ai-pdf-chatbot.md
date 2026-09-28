@@ -18,6 +18,8 @@ role: 'Sole engineer'
 timeline: '2026'
 context: 'Retrieval-augmented generation system'
 repo: 'https://github.com/pasindu9999/AI-chatbot'
+category: 'AI & ML'
+status: 'in-progress'
 featured: true
 order: 3
 ---

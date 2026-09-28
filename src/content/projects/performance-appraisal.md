@@ -2,13 +2,15 @@
 title: 'Employee Performance Appraisal System'
 blurb: 'A web application streamlining the employee appraisal process, specialising in performance rating and performance-based salary increments.'
 tags: ['Angular', 'ASP.NET', 'SQL Server']
-cover: '../../assets/projects/performance-appraisal.jpg'
-coverAlt: 'Employee Performance Appraisal System project cover.'
+cover: '../../assets/projects/performance-appraisal.png'
+coverAlt: 'Typographic cover: a rating scorecard with quality, timeliness and teamwork bars beneath an overall score.'
 year: 2022
 role: 'Research team'
 timeline: 'Dec 2021 – Aug 2022'
 context: 'Second year research project — University of Moratuwa'
 repo: 'https://github.com/pasindu9999/performance-appraisal-service'
+category: 'Full-stack'
+status: 'archived'
 featured: false
 order: 6
 ---

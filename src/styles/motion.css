@@ -22,6 +22,17 @@
   }
 }
 
+/* The Timeline's vertical line draws in as it enters the viewport. It is
+   fully drawn (scale: 1 1) by default -- content is visible without this. */
+@keyframes draw-in {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* --- Path 1: native scroll-driven animation. Zero JS, off main thread. --- */
   @supports (animation-timeline: view()) {
@@ -37,6 +48,15 @@
       animation-duration: auto;
       animation-timeline: view();
       animation-range: entry 0% cover 30%;
+    }
+
+    [data-draw]::before {
+      animation-name: draw-in;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-duration: auto;
+      animation-timeline: view();
+      animation-range: entry 0% cover 60%;
     }
   }
 

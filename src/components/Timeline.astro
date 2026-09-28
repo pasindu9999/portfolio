@@ -1,0 +1,171 @@
+---
+/**
+ * Merges EXPERIENCE and EDUCATION -- same shape, see site.ts -- into one
+ * chronological vertical timeline. Signature #1 (ledger) and #2 (marginalia)
+ * are the site's established identity; this is a third: a single accent
+ * line with small node markers, work solid and education outlined.
+ */
+import { EXPERIENCE, EDUCATION } from '../data/site';
+
+type Entry = (typeof EXPERIENCE)[number] | (typeof EDUCATION)[number];
+
+const entries: (Entry & { kind: 'work' | 'education' })[] = [
+  ...EXPERIENCE.map((e) => ({ ...e, kind: 'work' as const })),
+  ...EDUCATION.map((e) => ({ ...e, kind: 'education' as const })),
+].sort((a, b) => (a.start < b.start ? 1 : a.start > b.start ? -1 : 0));
+---
+
+<ol class="timeline" data-draw>
+  {
+    entries.map((entry) => (
+      <li class="timeline__entry" data-reveal>
+        <span
+          class="timeline__node"
+          data-kind={entry.kind}
+          aria-hidden="true"
+        />
+        <div class="timeline__meta">
+          <p class="timeline__period">{entry.period}</p>
+          <span class="timeline__badge" data-current={entry.duration === 'Current'}>
+            {entry.duration}
+          </span>
+          <span class="timeline__badge">
+            {entry.kind === 'work' ? 'Work' : 'Education'}
+          </span>
+        </div>
+        <h3 class="timeline__title">{entry.title}</h3>
+        <p class="timeline__org">{entry.org}</p>
+        {entry.highlights.length > 0 && (
+          <ul class="timeline__highlights">
+            {entry.highlights.map((h) => (
+              <li>{h}</li>
+            ))}
+          </ul>
+        )}
+        <ul class="timeline__tags" aria-label="Tags">
+          {entry.tags.slice(0, 3).map((t) => (
+            <li>{t}</li>
+          ))}
+        </ul>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: var(--space-l);
+    padding-inline-start: var(--space-l);
+    margin-block-start: var(--space-m);
+  }
+
+  /* The vertical line. Drawn by [data-draw] in motion.css on scroll-in;
+     fully visible by default so nothing depends on the animation running. */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 5px;
+    inset-block: 0.4em 0;
+    inline-size: 1px;
+    background-color: var(--accent);
+    transform-origin: top;
+  }
+
+  .timeline__entry {
+    position: relative;
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .timeline__node {
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--space-l) + 1px);
+    inset-block-start: 0.35em;
+    inline-size: 9px;
+    block-size: 9px;
+  }
+  .timeline__node[data-kind='work'] {
+    background-color: var(--accent);
+  }
+  .timeline__node[data-kind='education'] {
+    background-color: var(--surface);
+    border: 1px solid var(--accent);
+  }
+
+  .timeline__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+  .timeline__period {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+  /* Compact status pills -- same outlined-tag language as the project
+     card's status label, so "Current" reads as a state, not just a word. */
+  .timeline__badge {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-subtle);
+    border: 1px solid var(--rule-strong);
+    padding: 1px var(--space-2xs);
+  }
+  .timeline__badge[data-current='true'] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .timeline__title {
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    margin-block-start: var(--space-2xs);
+  }
+  .timeline__org {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-subtle);
+  }
+
+  /* Short phrases, not sentences -- a scorecard, not a paragraph. */
+  .timeline__highlights {
+    margin-block-start: var(--space-2xs);
+    list-style: none;
+    display: grid;
+    gap: var(--space-3xs);
+    max-inline-size: var(--measure);
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+  }
+  .timeline__highlights li {
+    padding-inline-start: 1.1em;
+    position: relative;
+  }
+  .timeline__highlights li::before {
+    content: '›';
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--accent);
+  }
+
+  .timeline__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+  .timeline__tags li {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 2px var(--space-2xs);
+  }
+</style>

@@ -2,13 +2,15 @@
 title: 'Automated Movie Content Rating System'
 blurb: 'An AI system classifying movie content against age-appropriateness guidelines, using YOLOv8 for human action recognition in video clips.'
 tags: ['Python', 'YOLOv8']
-cover: '../../assets/projects/movie-rating.jpg'
-coverAlt: 'Automated Movie Content Rating System project cover.'
+cover: '../../assets/projects/movie-rating.png'
+coverAlt: 'Typographic cover: a filmstrip of frames, one picked out as the classified frame.'
 year: 2024
 role: 'Research team — built the substance-abuse detection sub-module'
 timeline: 'Sep 2023 – May 2024'
 context: 'Final year research project — University of Moratuwa'
 repo: 'https://github.com/pasindu9999/Movie-Content-Rating-System'
+category: 'AI & ML'
+status: 'archived'
 featured: false
 order: 4
 ---

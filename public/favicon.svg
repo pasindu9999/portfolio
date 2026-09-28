@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <style>
-    :root { --bg: #f4f1eb; --fg: #16130f; --ac: #1f3ae0; }
+    :root { --bg: #f4f1eb; --fg: #16130f; --ac: #4a6000; }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #0c0d10; --fg: #edeae3; --ac: #d8ff47; }
     }

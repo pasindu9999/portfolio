@@ -8,6 +8,8 @@ year: 2023
 role: 'Software Engineer'
 timeline: 'Dec 2022 – Jul 2023'
 context: 'Production project — IFS R&D International'
+category: 'Enterprise'
+status: 'archived'
 featured: false
 order: 5
 ---

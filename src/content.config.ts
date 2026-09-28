@@ -82,6 +82,14 @@ const STACK = [
   'pytest',
 ] as const;
 
+/**
+ * Gallery filter tabs. A closed set for the same reason STACK is: a typo
+ * fails the build instead of silently producing a tab nothing matches.
+ * Not derived from STACK -- STACK has 64 names, most used by exactly one
+ * project, so tabs built from it would be useless.
+ */
+export const PROJECT_CATEGORY = ['AI & ML', 'Full-stack', 'Enterprise'] as const;
+
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
   schema: ({ image }) =>
@@ -90,6 +98,11 @@ const projects = defineCollection({
       // Doubles as the meta description, hence the hard cap.
       blurb: z.string().max(160),
       tags: z.array(z.enum(STACK)).min(1),
+      /** Gallery filter tab. Required -- see PROJECT_CATEGORY above. */
+      category: z.enum(PROJECT_CATEGORY),
+      /** Small outlined label on the gallery card. Optional: not every
+       * project has a meaningful lifecycle state (e.g. a coursework project). */
+      status: z.enum(['live', 'in-progress', 'archived']).optional(),
       // image() means a missing or misspelled file fails the build rather
       // than 404ing in production. Optional: projects without a screenshot
       // fall back to a typographic cover generated from the design system.

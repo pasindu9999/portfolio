@@ -1,0 +1,136 @@
+---
+/**
+ * Pure-CSS radio-button filter tabs -- no JS. Same technique as
+ * ThemeToggle.astro: visually hidden radios, :checked + label for the
+ * active state, and a generated sibling-combinator rule per option that
+ * shows/hides items by a data-category attribute.
+ *
+ * Used by the skills grid and the project gallery. `id` must be unique per
+ * page (and per styleguide theme pane) since it seeds every input id and the
+ * radio group name.
+ */
+interface Props {
+  id: string;
+  label: string;
+  options: { value: string; label: string }[];
+}
+const { id, label, options } = Astro.props;
+
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const all = { value: '__all', label: 'All' };
+const tabs = [all, ...options.map((o) => ({ ...o, slug: slugify(o.value) }))];
+
+// One rule per non-"all" option: when its radio is checked, hide every item
+// whose data-category doesn't match. "All" needs no rule -- nothing is ever
+// hidden by it. A descendant combinator, not a direct-child one: slotted
+// content is usually its own grid wrapper (.work__grid, .grid-skills), so the
+// [data-category] card is a grandchild of .filter__items, not a child.
+const rules = options
+  .map((o) => {
+    const slug = slugify(o.value);
+    return `#${id}-${slug}:checked ~ .filter__items [data-category]:not([data-category="${o.value}"]) { display: none; }`;
+  })
+  .join('\n');
+---
+
+<fieldset class="filter" id={id}>
+  <legend class="sr-only">{label}</legend>
+
+  {
+    tabs.map((tab, i) => {
+      const slug = 'slug' in tab ? tab.slug : 'all';
+      const inputId = `${id}-${slug}`;
+      return (
+        <>
+          <input
+            type="radio"
+            class="filter__input"
+            name={`${id}-filter`}
+            id={inputId}
+            checked={i === 0}
+          />
+          <label class="filter__tab" for={inputId}>
+            {tab.label}
+          </label>
+        </>
+      );
+    })
+  }
+
+  <div class="filter__items">
+    <slot />
+  </div>
+</fieldset>
+
+<style is:inline set:html={rules}></style>
+
+<style>
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-s) var(--space-m);
+    border: none;
+  }
+
+  .filter__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .filter__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  /* The marginalia hairline: a rule that grows under the active tab. */
+  .filter__tab::after {
+    content: '';
+    position: absolute;
+    inset-block-end: -2px;
+    inset-inline-start: 0;
+    block-size: 1px;
+    inline-size: 0;
+    background-color: var(--accent);
+    transition: inline-size var(--dur) var(--ease-out);
+  }
+
+  .filter__tab:hover {
+    color: var(--ink);
+  }
+
+  .filter__input:checked + .filter__tab {
+    color: var(--ink);
+  }
+  .filter__input:checked + .filter__tab::after {
+    inline-size: 100%;
+  }
+
+  .filter__input:focus-visible + .filter__tab {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .filter__items {
+    flex: 1 0 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .filter__tab,
+    .filter__tab::after {
+      transition: none;
+    }
+  }
+</style>

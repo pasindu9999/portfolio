@@ -28,6 +28,8 @@ timeline: '2026'
 context: 'Self-directed engineering project'
 repo: 'https://github.com/pasindu9999/ShiftReason'
 demo: 'https://shiftreason.pages.dev'
+category: 'Full-stack'
+status: 'live'
 featured: true
 order: 1
 ---

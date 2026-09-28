@@ -1,6 +1,13 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ThemeToggle from '../../components/ThemeToggle.astro';
+import FilterGroup from '../../components/FilterGroup.astro';
+import SkillCard from '../../components/SkillCard.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Timeline from '../../components/Timeline.astro';
+import ContactLedger from '../../components/ContactLedger.astro';
+import { SKILLS, SKILL_CATEGORIES } from '../../data/site';
 
 // Dev-only. In a production build this returns no paths, so the route is
 // simply never emitted -- no noindex needed, nothing to leak.
@@ -22,7 +29,14 @@ const SEMANTIC = [
   'accent-hover',
   'accent-ink',
   'focus',
+  'field-bg',
+  'field-border',
+  'texture',
 ];
+
+const sampleProjects = (await getCollection('projects', (p) => !p.data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 2);
 
 const STEPS = [
   ['--step--2', 'step--2'],
@@ -71,7 +85,16 @@ const SPACES = [
             <ul class="sg__swatches">
               {SEMANTIC.map((token) => (
                 <li>
-                  <span class="sg__chip" style={`background: var(--${token})`}></span>
+                  {token === 'texture' ? (
+                    // The dot grid reads as a colour swatch flat -- show it
+                    // tiled, the way it actually appears behind the hero.
+                    <span
+                      class="sg__chip"
+                      style={`background-color: var(--surface); background-image: radial-gradient(circle, var(--texture) 1px, transparent 1.5px); background-size: 8px 8px`}
+                    />
+                  ) : (
+                    <span class="sg__chip" style={`background: var(--${token})`} />
+                  )}
                   <code class="mono">--{token}</code>
                 </li>
               ))}
@@ -132,6 +155,58 @@ const SPACES = [
         <div class="span-bleed-right sg__cell">span-bleed-right</div>
         <div class="col-1-5 sg__cell">col-1-5</div>
         <div class="col-7-12 sg__cell">col-7-12</div>
+      </div>
+    </section>
+
+    <!-- ---------- Components (skills filter, gallery, timeline, contact) ---------- -->
+    <section class="sg__section">
+      <div class="rule-labelled"><span class="label">05 /</span><span class="label">Components</span></div>
+      <div class="sg__themes">
+        {['light', 'dark'].map((theme) => (
+          <div class="sg__theme" data-theme={theme}>
+            <p class="mono sg__theme-name">{theme}</p>
+
+            <p class="mono" style="color: var(--ink-subtle)">Skills filter + cards</p>
+            <FilterGroup
+              id={`sg-${theme}-skills`}
+              label="Filter skills by category"
+              options={SKILL_CATEGORIES.map((c) => ({ value: c, label: c }))}
+            >
+              <div class="sg__cards">
+                {SKILLS.slice(0, 3).map((group) => (
+                  <SkillCard
+                    group={group.group}
+                    category={group.category}
+                    items={group.items}
+                  />
+                ))}
+              </div>
+            </FilterGroup>
+
+            <p class="mono" style="color: var(--ink-subtle)">Project cards</p>
+            <div class="sg__cards">
+              {sampleProjects.map((project, i) => (
+                <ProjectCard project={project} index={i + 1} />
+              ))}
+            </div>
+
+            <p class="mono" style="color: var(--ink-subtle)">Timeline</p>
+            <Timeline />
+
+            <p class="mono" style="color: var(--ink-subtle)">Contact ledger</p>
+            <ContactLedger />
+
+            <p class="mono" style="color: var(--ink-subtle)">Form field</p>
+            <div class="field">
+              <label for={`sg-${theme}-demo-input`}>Name</label>
+              <input id={`sg-${theme}-demo-input`} type="text" placeholder="Ada Lovelace" />
+            </div>
+            <div class="field">
+              <label for={`sg-${theme}-demo-textarea`}>Message</label>
+              <textarea id={`sg-${theme}-demo-textarea`} rows="3" placeholder="Say hello." />
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   </div>
@@ -219,5 +294,13 @@ const SPACES = [
     font-family: var(--font-mono);
     font-size: var(--step--2);
     color: var(--ink-muted);
+  }
+
+  .sg__cards {
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (width >= 30rem) {
+    .sg__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>

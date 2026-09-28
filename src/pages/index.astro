@@ -5,8 +5,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MarginaliaIndex from '../components/MarginaliaIndex.astro';
-import WorkLedger from '../components/WorkLedger.astro';
-import { SITE, BIO, SKILLS, EXPERIENCE, EDUCATION } from '../data/site';
+import FilterGroup from '../components/FilterGroup.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import SkillCard from '../components/SkillCard.astro';
+import Timeline from '../components/Timeline.astro';
+import ContactLedger from '../components/ContactLedger.astro';
+import portrait from '../assets/portrait-about.jpeg';
+import { PROJECT_CATEGORY } from '../content.config';
+import { SITE, BIO, SKILLS, SKILL_CATEGORIES } from '../data/site';
 
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
@@ -14,10 +20,16 @@ const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
 const selected = projects.find((p) => p.data.featured) ?? projects[0];
 const year = new Date().getFullYear();
 
+// Only offer gallery tabs for categories actually present, in schema order.
+const presentCategories = new Set(projects.map((p) => p.data.category));
+const workCategories = PROJECT_CATEGORY.filter((c) => presentCategories.has(c));
+
 const SECTIONS = [
   { id: 'index', label: 'Index' },
   { id: 'work', label: 'Work' },
   { id: 'selected', label: 'Selected' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'timeline', label: 'Timeline' },
   { id: 'colophon', label: 'Colophon' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -52,12 +64,24 @@ const SECTIONS = [
     </div>
   </section>
 
-  <!-- ============ 02 WORK LEDGER ============ -->
+  <!-- ============ 02 WORK — the filterable gallery ============ -->
   <section id="work" class="section-block wrap">
     <div class="rule-labelled">
       <span class="label">02 /</span><span class="label">Selected work</span>
     </div>
-    <WorkLedger projects={projects} />
+    <FilterGroup
+      id="work-filter"
+      label="Filter projects by category"
+      options={workCategories.map((c) => ({ value: c, label: c }))}
+    >
+      <div class="work__grid">
+        {
+          projects.map((project, i) => (
+            <ProjectCard project={project} index={i + 1} />
+          ))
+        }
+      </div>
+    </FilterGroup>
   </section>
 
   <!-- ============ 03 SELECTED — the deliberate grid break ============ -->
@@ -107,84 +131,84 @@ const SECTIONS = [
     )
   }
 
-  <!-- ============ 04 COLOPHON ============ -->
+  <!-- ============ 04 SKILLS — filterable, tag-field cards ============ -->
+  <section id="skills" class="section-block wrap">
+    <div class="rule-labelled">
+      <span class="label">04 /</span><span class="label">Toolkit</span>
+    </div>
+    <FilterGroup
+      id="skills-filter"
+      label="Filter skills by category"
+      options={SKILL_CATEGORIES.map((c) => ({ value: c, label: c }))}
+    >
+      <div class="grid-skills">
+        {
+          SKILLS.map((group) => (
+            <SkillCard
+              group={group.group}
+              category={group.category}
+              items={group.items}
+            />
+          ))
+        }
+      </div>
+    </FilterGroup>
+  </section>
+
+  <!-- ============ 05 TIMELINE — experience + education, merged ============ -->
+  <section id="timeline" class="section-block wrap">
+    <div class="rule-labelled">
+      <span class="label">05 /</span><span class="label">Timeline</span>
+    </div>
+    <Timeline />
+  </section>
+
+  <!-- ============ 06 COLOPHON ============ -->
   <section id="colophon" class="section-block wrap">
     <div class="rule-labelled">
-      <span class="label">04 /</span><span class="label">Colophon</span>
+      <span class="label">06 /</span><span class="label">Colophon</span>
     </div>
 
     <div class="colophon">
-      <div class="colophon__lead">
+      <div class="colophon__portrait">
+        <Picture
+          src={portrait}
+          alt={SITE.name}
+          formats={['avif', 'webp']}
+          widths={[320, 540, 800]}
+          sizes="(min-width: 64rem) 22rem, 60vw"
+          loading="lazy"
+        />
+      </div>
+      <div class="colophon__copy">
         <h2>Engineer, end to end.</h2>
         <p class="measure">{BIO}</p>
-      </div>
-
-      <div class="colophon__sheet">
-        <dl class="spec">
-          {
-            EXPERIENCE.map((job) => (
-              <div>
-                <dt>{job.period}</dt>
-                <dd>
-                  {job.title}
-                  <span class="colophon__sub">{job.company}</span>
-                </dd>
-              </div>
-            ))
-          }
-          <div>
-            <dt>{EDUCATION.period}</dt>
-            <dd>
-              {EDUCATION.qualification}
-              <span class="colophon__sub">
-                {EDUCATION.institution} · {EDUCATION.result}
-              </span>
-            </dd>
-          </div>
-        </dl>
-
-        {
-          SKILLS.map((group) => (
-            <div class="skills">
-              <p class="eyebrow">{group.group}</p>
-              <ul>
-                {group.items.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
+        <p class="colophon__note measure">
+          In practice that has meant two things at once: moving long-lived
+          enterprise systems onto modern architecture without breaking what
+          already works, and building new platform layers where the interesting
+          problems are access control, data contracts and test coverage rather
+          than screens. The GenAI work is the same instinct pointed at a newer
+          problem — measure first, then decide what to change.
+        </p>
+        <a class="btn" href="/cv.pdf">Download CV</a>
       </div>
     </div>
   </section>
 
-  <!-- ============ 05 CONTACT ============ -->
+  <!-- ============ 07 CONTACT ============ -->
   <section id="contact" class="section-block wrap">
     <div class="rule-labelled">
-      <span class="label">05 /</span><span class="label">Contact</span>
+      <span class="label">07 /</span><span class="label">Contact</span>
     </div>
 
+    <h2 class="contact__statement">
+      Let’s build<br />something that<br />
+      <span class="contact__accent">actually ships.</span>
+    </h2>
+
     <div class="contact">
-      <div>
-        <h2 class="contact__statement">
-          Let’s build<br />something that<br />
-          <span class="contact__accent">actually ships.</span>
-        </h2>
-        <ul class="contact__direct">
-          <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
-          <li>
-            <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
-              LinkedIn<span class="sr-only"> (opens in a new tab)</span>
-            </a>
-          </li>
-          <li>
-            <a href={SITE.github} rel="noopener noreferrer" target="_blank">
-              GitHub<span class="sr-only"> (opens in a new tab)</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+      <ContactLedger />
 
       {/*
         Netlify Forms: this must stay static markup. Netlify's build-time bot
@@ -239,9 +263,22 @@ const SECTIONS = [
 
   /* ---------- Masthead ---------- */
   .masthead {
+    position: relative;
+    isolation: isolate;
     padding: var(--space-xl) var(--gutter) var(--space-2xl);
     max-inline-size: 90rem;
     margin-inline: auto;
+  }
+  /* A very low-opacity dot grid behind the hero, faded out toward the edges
+     so it reads as texture rather than a pattern. Pure CSS, no image asset. */
+  .masthead::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(circle, var(--texture) 1px, transparent 1.5px);
+    background-size: var(--texture-size) var(--texture-size);
+    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
   }
   .masthead__eyebrow {
     margin-block-end: var(--space-m);
@@ -320,6 +357,24 @@ const SECTIONS = [
     line-height: 1.45;
   }
 
+  /* ---------- Work gallery ---------- */
+  .work__grid {
+    display: grid;
+    gap: var(--space-m);
+    margin-block-start: var(--space-m);
+  }
+  @media (width >= 48rem) {
+    .work__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
+  }
+  @media (width >= 72rem) {
+    .work__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   /* ---------- Selected: full-bleed asymmetric break ---------- */
   .selected {
     margin-block: var(--space-3xl);
@@ -393,110 +448,88 @@ const SECTIONS = [
     display: grid;
     gap: 2px;
   }
-  .colophon__sub {
-    color: var(--ink-muted);
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
+
+  /* ---------- Skills ---------- */
+  .grid-skills {
+    display: grid;
+    gap: var(--space-m);
+    margin-block-start: var(--space-m);
+  }
+  @media (width >= 48rem) {
+    .grid-skills {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
+  }
+  @media (width >= 72rem) {
+    .grid-skills {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   /* ---------- Colophon ---------- */
   .colophon {
     display: grid;
-    gap: var(--space-xl);
+    gap: var(--space-m);
     margin-block-start: var(--space-l);
   }
   @media (width >= 64rem) {
     .colophon {
-      grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
-      gap: var(--space-2xl);
+      grid-template-columns: 22rem minmax(0, 1fr);
+      gap: var(--space-xl);
+      align-items: start;
     }
   }
-  .colophon__lead h2 {
+  .colophon__portrait :global(img) {
+    inline-size: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .colophon__copy {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    max-inline-size: var(--measure);
+  }
+  .colophon__copy h2 {
     font-size: var(--step-4);
     letter-spacing: -0.035em;
-    margin-block-end: var(--space-s);
   }
-  .colophon__sheet {
-    display: grid;
-    gap: var(--space-m);
+  .colophon__copy p {
+    font-size: var(--step-1);
+    line-height: 1.5;
   }
-  /* Skills read as a dense tag field rather than a rated list. The CV states
-     no proficiency levels, and inventing them would be fabrication. */
-  .skills ul {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3xs) var(--space-2xs);
-    margin-block-start: var(--space-2xs);
-  }
-  .skills li {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
+  .colophon__note {
     color: var(--ink-muted);
-    border: 1px solid var(--rule);
-    padding: 2px var(--space-2xs);
   }
 
   /* ---------- Contact ---------- */
+  .contact__statement {
+    font-size: var(--step-5);
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    margin-block: var(--space-2xs) var(--space-l);
+  }
+  .contact__accent {
+    color: var(--accent);
+  }
+
   .contact {
     display: grid;
     gap: var(--space-xl);
-    margin-block-start: var(--space-l);
   }
   @media (width >= 64rem) {
     .contact {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-2xl);
+      align-items: start;
     }
-  }
-  .contact__statement {
-    font-size: var(--step-5);
-    letter-spacing: -0.04em;
-    line-height: 0.98;
-  }
-  .contact__accent {
-    color: var(--accent);
-  }
-  .contact__direct {
-    list-style: none;
-    margin-block-start: var(--space-m);
-    display: grid;
-    gap: var(--space-3xs);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
   }
 
   .contact__form {
     display: grid;
     gap: var(--space-s);
     align-content: start;
-  }
-  .field {
-    display: grid;
-    gap: var(--space-3xs);
-  }
-  .field label {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--ink-subtle);
-  }
-  .field input,
-  .field textarea {
-    inline-size: 100%;
-    padding: var(--space-2xs) 0;
-    border-block-end: 1px solid var(--rule-strong);
-    background: transparent;
-    font-size: var(--step-0);
-    border-radius: 0;
-  }
-  .field input:focus-visible,
-  .field textarea:focus-visible {
-    outline-offset: 4px;
-  }
-  .field textarea {
-    resize: vertical;
   }
 
   /* ---------- Buttons ---------- */
@@ -528,5 +561,11 @@ const SECTIONS = [
   .btn--fill:hover {
     background-color: var(--accent-hover);
     border-color: var(--accent-hover);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
   }
 </style>
