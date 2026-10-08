@@ -36,17 +36,6 @@ body {
               color var(--dur-theme) var(--ease-out);
 }
 
-/* TEMPORARY SKY (phase 1). A fixed gradient behind everything, so the palette
-   can be judged before the animated Sky component replaces it. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(to bottom, var(--sky-1), var(--sky-2), var(--sky-3));
-}
-
 @media (prefers-reduced-motion: reduce) {
   body { transition: none; }
 }
