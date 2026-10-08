@@ -68,11 +68,14 @@ const BRIGHT = Array.from({ length: 10 }, () => ({
   delay: -between(0, 5),
 }));
 
+// Cycle lengths are deliberately uneven so the streaks never fall into step.
+// Together they average roughly one meteor every 2.5s on desktop.
 const METEORS = [
-  { x: 62, y: 6, len: 130, dur: 14, delay: 3 },
-  { x: 88, y: 22, len: 110, dur: 18, delay: 9 },
-  { x: 45, y: 2, len: 150, dur: 12, delay: 6.5 },
-  { x: 78, y: 40, len: 100, dur: 16, delay: 13 },
+  { x: 62, y: 6, len: 130, dur: 11, delay: 2 },
+  { x: 88, y: 22, len: 110, dur: 15, delay: 7 },
+  { x: 45, y: 2, len: 150, dur: 10, delay: 4.5 },
+  { x: 78, y: 40, len: 100, dur: 13, delay: 10 },
+  { x: 30, y: 14, len: 120, dur: 16, delay: 6 },
 ];
 ---
 
@@ -98,7 +101,7 @@ const METEORS = [
     {
       METEORS.map((m, i) => (
         <span
-          class:list={['meteor', { 'meteor--extra': i >= 2 }]}
+          class:list={['meteor', { 'meteor--extra': i >= 3 }]}
           style={`--x:${m.x}%;--y:${m.y}%;--len:${m.len}px;--dur:${m.dur}s;--delay:${m.delay}s`}
         />
       ))
