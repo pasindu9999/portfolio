@@ -34,9 +34,11 @@ src/
     tokens.css           Colour / type / space tokens, both themes
     base.css             Reset and document defaults
     layout.css           The editorial grid
-    motion.css           Reveals + view transitions
+    components.css       Shared buttons, glass surface, pills, section heads
+    motion.css           Reveals + page view transitions
     global.css           Entry: Tailwind + the above
-  components/            Header, footer, ledger, marginalia, theme toggle
+  components/            Header, footer, ledger, marginalia, theme toggle,
+                         Sky (the animated night/day background)
   layouts/BaseLayout.astro  <head>, SEO, fonts, theme script
 public/                  Served verbatim: favicon, cv.pdf, og/
 ```
@@ -83,29 +85,75 @@ on the sunken surface.
 Theme is an attribute on `<html>`: `data-theme="light" | "dark"`.
 
 - `localStorage.theme` holds `"light"` or `"dark"` only. **Absence means
-  "follow the system"**, so resetting is `removeItem`.
+  "follow the system"**, so resetting is `removeItem`. The header has a single
+  sun/moon button with no "system" position, so the footer shows a
+  **Use system theme** link once a choice has been made.
 - A blocking inline script in `<head>` (`components/ThemeScript.astro`) resolves
-  the theme before first paint. It **must** keep `is:inline`, or Astro bundles
-  it into a deferred file and you get a flash of the wrong theme.
-- Colours are semantic tokens in `tokens.css`. The two themes are deliberately
-  *not* inversions — the accent changes hue, and elevation is a shadow on light
-  and a luminous hairline on dark.
-- Adding or changing a colour? Run `npm run check:contrast`.
+  the theme before first paint and sets `<meta name="theme-color">`. It **must**
+  keep `is:inline`, or Astro bundles it into a deferred file and you get a flash
+  of the wrong theme.
+- Colours are semantic tokens in `tokens.css`. The two themes are two designed
+  skies, not an inversion: a daytime sky (blue → lavender → peach, frosted white
+  glass, soft lavender shadow) and a night sky (indigo, navy glass, luminous
+  hairline), sharing one purple accent family. `--accent` is for text and
+  links; `--accent-fill` is a deeper step for button backgrounds so white text
+  on it clears AA.
+- Text sits on a moving gradient and on translucent glass, so `npm run
+  check:contrast` tests every text colour against **every sky stop and the
+  flattened glass** (including the more opaque mobile glass). Adding or changing
+  a colour? Run it.
+- `make-covers.mjs` hard-codes the night palette for the generated project
+  covers. Keep it in step with `tokens.css`, then `npm run covers`.
+
+## The sky (`components/Sky.astro`)
+
+One fixed, `aria-hidden` layer behind every page with two scenes: a night scene
+(gradient, twinkling stars, shooting stars) and a day scene (gradient, sun
+glow, drifting blurred clouds, floating motes).
+
+- Star, cloud, mote and meteor positions are generated **at build time** from a
+  seeded PRNG: no runtime placement JS, identical on every page, stable across
+  resizes. Stars are a handful of one-pixel elements whose `box-shadow` carries
+  the dots, so the twinkle is a few compositor-only opacity animations, not
+  hundreds of nodes.
+- Everything animates `transform`/`opacity` only.
+- **Sunrise / sunset.** A single `--night` number (0 or 1) is set per theme and
+  every part of the sky eases to its end state on its own clock. Because a CSS
+  transition uses the timing of the state it is heading *into*, each direction
+  has its own choreography, defined as variables on `.sky`: sunset sinks the
+  clouds, lowers the sun, floods in the night gradient, brings the star layers
+  in one after another, then resumes meteors; sunrise reverses it. The
+  transitions sit on wrapper elements, never on the animated children, so they
+  cannot fight the keyframes. Text colours ease in step via `html.theme-changing`
+  (see `base.css`) -- short and late on purpose, timed to the sky's mid-dusk.
+- The scene that is not showing is `visibility: hidden` and its animations are
+  paused; every animation pauses while the tab is hidden (`data-sky-paused`).
+- Below 48rem: fewer star layers, sparkles, meteors, clouds and motes, a smaller
+  cloud blur, and opaque glass instead of `backdrop-filter`.
+- `prefers-reduced-motion: reduce`: stars, sun and clouds render as a still
+  picture, meteors and motes are removed, and the theme swap is an instant cut.
 
 ## Motion
 
-CSS-first, so the homepage ships **zero external JavaScript**.
+CSS-first. The only client JS is small: the theme toggle, the footer reset, the
+header menu's close-on-click, the section index highlight, and the reveal shim.
 
 - Scroll reveals use native scroll-driven animations (`animation-timeline:
   view()`), with a small IntersectionObserver shim for browsers without them.
-- Page transitions use native cross-document View Transitions — no client
-  router, which is also why the theme survives navigation for free.
+- The sticky header's frosted layer fades in on scroll (`animation-timeline:
+  scroll()`); without support it is simply frosted from the start.
+- Page transitions use native cross-document View Transitions -- no client
+  router, which is also why the theme survives navigation for free. (The theme
+  *change* is deliberately not a view transition: a snapshot would freeze the
+  animated sky mid-flight.)
 - **Rule: content is visible by default.** Never ship `opacity: 0` that JS or
-  an unsupported feature has to undo.
+  an unsupported feature has to undo. The hero's load-in uses a *backwards* fill
+  for the same reason.
 - Use animation *longhands* for scroll-driven animations. The `animation`
   shorthand resets `animation-duration` to `0s`, which pins the element at its
   first keyframe and makes it permanently invisible.
-- Everything sits inside `@media (prefers-reduced-motion: no-preference)`.
+- Everything sits inside `@media (prefers-reduced-motion: no-preference)` or has
+  an explicit `reduce` branch.
 
 ## Deploying
 

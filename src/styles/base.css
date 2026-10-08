@@ -95,6 +95,31 @@ button { cursor: pointer; }
 
 ul[class], ol[class] { list-style: none; }
 
+/* While the theme is switching (class set for ~1.8s by ThemeToggle), every
+   colour eases instead of snapping. The text fade is short and deliberately
+   LATE: it is timed to land when the sky is passing through mid-dusk (sunset:
+   0.45s in; sunrise: 0.75s in, because the night gradient lifts after the
+   stars go out). A long fade would hold mid-grey text on a mid-grey sky for
+   twice as long -- modelled at ~200ms below 3:1 contrast vs ~110ms here.
+   Keep in step with the --ng-* timings in Sky.astro.
+   !important is deliberate and temporary: it must beat per-component hover
+   transitions for the duration of the switch only. */
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition:
+    color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    background-color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    border-color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    box-shadow 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    text-shadow 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    fill 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    stroke 0.5s var(--ease-in-out) var(--theme-lag, 0.45s) !important;
+}
+html[data-theme='light'].theme-changing {
+  --theme-lag: 0.75s;
+}
+
 /* Reduced motion means NO animation, not slower animation. */
 @media (prefers-reduced-motion: reduce) {
   *,

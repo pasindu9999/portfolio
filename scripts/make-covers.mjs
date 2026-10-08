@@ -12,14 +12,38 @@ import sharp from 'sharp';
 const W = 1600;
 const H = 1067;
 
+// KEEP IN SYNC with the dark theme in src/styles/tokens.css.
 const T = {
-  surface: '#0c0d10',
-  raised: '#16181d',
-  ink: '#edeae3',
-  subtle: '#6e6960',
-  rule: '#2b2e35',
-  accent: '#d8ff47',
+  surface: '#0a0e2c', // night-900
+  top: '#04061a', // night-950, top of the sky gradient
+  bottom: '#1b1340', // night-800, bottom of the sky gradient
+  raised: '#141a3c', // night-700
+  ink: '#e8e9f6', // star-100
+  subtle: '#8a92b8', // star-500
+  rule: '#2d3566',
+  accent: '#b39dff', // violet-300
 };
+
+// Deterministic specks, so re-running the script never changes the covers.
+function stars(n) {
+  let a = 20260814;
+  const rnd = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const x = Math.round(rnd() * W);
+    const y = Math.round(Math.pow(rnd(), 1.3) * H);
+    const r = (0.8 + rnd() * 1.4).toFixed(1);
+    const o = (0.25 + rnd() * 0.55).toFixed(2);
+    out += `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffffff" opacity="${o}"/>`;
+  }
+  return out;
+}
 
 const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -150,6 +174,9 @@ function motifSvg(kind) {
   return s;
 }
 
+// Same specks on every cover: the sky is the constant, the motif is the variable.
+const starField = stars(70);
+
 for (const c of COVERS) {
   const lines = wrap(c.title, 15);
   const titleSvg = lines
@@ -160,7 +187,20 @@ for (const c of COVERS) {
     .join('');
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
-    <rect width="${W}" height="${H}" fill="${T.surface}"/>
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${T.top}"/>
+        <stop offset="0.55" stop-color="${T.surface}"/>
+        <stop offset="1" stop-color="${T.bottom}"/>
+      </linearGradient>
+      <radialGradient id="glow" cx="0.5" cy="1.08" r="0.75">
+        <stop offset="0" stop-color="#7c3aed" stop-opacity="0.34"/>
+        <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#sky)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    ${starField}
     <rect x="0" y="0" width="${W}" height="5" fill="${T.accent}"/>
     <line x1="96" y1="180" x2="${W - 96}" y2="180" stroke="${T.rule}" stroke-width="1.5"/>
     <text x="96" y="150" font-family="Helvetica, Arial, sans-serif" font-size="26"

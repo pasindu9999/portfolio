@@ -130,10 +130,29 @@
       }
     };
 
+    // KEEP in sync with ThemeScript.astro.
+    const THEME_COLOR = { light: '#c4defb', dark: '#04061a' };
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let settle: number | undefined;
+
     const paint = (theme: 'light' | 'dark') => {
+      // While the sky changes, ease text and surface colours too, so words do
+      // not snap to the new theme while the sky behind them is still the old
+      // one. Skipped under reduced motion: that is an instant cut.
+      if (!reduced.matches) {
+        root.classList.add('theme-changing');
+        clearTimeout(settle);
+        settle = window.setTimeout(
+          () => root.classList.remove('theme-changing'),
+          1800,
+        );
+      }
       root.setAttribute('data-theme', theme);
       root.style.colorScheme = theme;
       button.setAttribute('aria-pressed', String(theme === 'dark'));
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', THEME_COLOR[theme]);
     };
 
     const current = (): 'light' | 'dark' =>
@@ -150,6 +169,8 @@
         /* Storage unavailable -- the choice still applies for this page. */
       }
       paint(next);
+      // Lets the footer reveal its "Use system theme" reset.
+      window.dispatchEvent(new Event('theme:stored'));
     });
 
     // Track the OS while following it. Users expect this; almost nobody does it.

@@ -111,52 +111,86 @@ const MOTES = Array.from({ length: 18 }, () => ({
 ---
 
 <div class="sky" aria-hidden="true">
-  <div class="sky__night">
-    <div class="sky__nebula"></div>
-    {
-      LAYERS.map((l) => (
-        <span
-          class={`stars stars--${l.id}`}
-          style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
-        />
-      ))
-    }
-    {
-      BRIGHT.map((s, i) => (
-        <span
-          class:list={['star', { 'star--extra': i >= 6 }]}
-          style={`--x:${s.x}%;--y:${s.y}%;--size:${s.size}px;--dur:${s.dur}s;--delay:${s.delay}s`}
-        />
-      ))
-    }
-    {
-      METEORS.map((m, i) => (
-        <span
-          class:list={['meteor', { 'meteor--extra': i >= 3 }]}
-          style={`--x:${m.x}%;--y:${m.y}%;--len:${m.len}px;--dur:${m.dur}s;--delay:${m.delay}s`}
-        />
-      ))
-    }
+  <!-- DAY. The gradient is the permanent bottom layer: the night sky fades in
+       OVER it and out again, so there is never a gap between the two. -->
+  <div class="sky__day">
+    <div class="day__fx">
+      <div class="day__sun"><div class="sun"></div></div>
+      <div class="day__clouds">
+        {
+          CLOUDS.map((c, i) => (
+            <span
+              class:list={['cloud', { 'cloud--extra': i >= 3 }]}
+              style={`--x:${c.x}vw;--y:${c.y}vh;--w:${c.w}vw;--dur:${c.dur}s;--delay:${c.delay}s;--op:${c.op};--blur:${c.blur}px`}
+            />
+          ))
+        }
+      </div>
+      <div class="day__motes">
+        {
+          MOTES.map((m, i) => (
+            <span
+              class:list={['mote', { 'mote--extra': i >= 9 }]}
+              style={`--x:${m.x}%;--y:${m.y}%;--size:${m.size}px;--dur:${m.dur}s;--delay:${m.delay}s;--rise:${m.rise}vh;--drift:${m.drift}px;--tint:${m.tint}`}
+            />
+          ))
+        }
+      </div>
+    </div>
   </div>
 
-  <div class="sky__day">
-    <div class="sun"></div>
-    {
-      CLOUDS.map((c, i) => (
-        <span
-          class:list={['cloud', { 'cloud--extra': i >= 3 }]}
-          style={`--x:${c.x}vw;--y:${c.y}vh;--w:${c.w}vw;--dur:${c.dur}s;--delay:${c.delay}s;--op:${c.op};--blur:${c.blur}px`}
-        />
-      ))
-    }
-    {
-      MOTES.map((m, i) => (
-        <span
-          class:list={['mote', { 'mote--extra': i >= 9 }]}
-          style={`--x:${m.x}%;--y:${m.y}%;--size:${m.size}px;--dur:${m.dur}s;--delay:${m.delay}s;--rise:${m.rise}vh;--drift:${m.drift}px;--tint:${m.tint}`}
-        />
-      ))
-    }
+  <!-- NIGHT. Star layers sit in three groups so they can fade in one after
+       another at dusk. -->
+  <div class="sky__night">
+    <div class="night__sky"><div class="sky__nebula"></div></div>
+    <div class="night__stars night__stars--1">
+      {
+        LAYERS.filter((l) => l.id.startsWith('a')).map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__stars night__stars--2">
+      {
+        LAYERS.filter((l) => l.id.startsWith('b')).map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__stars night__stars--3">
+      {
+        LAYERS.filter((l) => l.id === 'c').map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+      {
+        BRIGHT.map((b, i) => (
+          <span
+            class:list={['star', { 'star--extra': i >= 6 }]}
+            style={`--x:${b.x}%;--y:${b.y}%;--size:${b.size}px;--dur:${b.dur}s;--delay:${b.delay}s`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__meteors">
+      {
+        METEORS.map((m, i) => (
+          <span
+            class:list={['meteor', { 'meteor--extra': i >= 3 }]}
+            style={`--x:${m.x}%;--y:${m.y}%;--len:${m.len}px;--dur:${m.dur}s;--delay:${m.delay}s`}
+          />
+        ))
+      }
+    </div>
   </div>
 </div>
 
@@ -172,14 +206,69 @@ const MOTES = Array.from({ length: 18 }, () => ({
   }
 
   .sky__night,
-  .sky__day {
+  .sky__day,
+  .day__fx,
+  .day__sun,
+  .day__clouds,
+  .day__motes,
+  .night__sky,
+  .night__stars,
+  .night__meteors {
     position: absolute;
     inset: 0;
   }
 
-  /* ---------------------------------------------------------------- scenes
-     Day is the default (matches the light-first token defaults); dark flips
-     it. The no-JS media block mirrors tokens.css. KEEP IN SYNC. */
+  /* ----------------------------------------------------- sunrise / sunset
+     ONE number, --night (0 = day, 1 = night), is set per theme; every part of
+     the sky derives its end state from it and eases there on its own clock.
+     The timing variables are set per theme TOO, because a CSS transition uses
+     the timing of the state it is heading INTO -- so each direction gets its
+     own choreography:
+
+       SUNSET (-> dark)  clouds sink and fade, the sun slips below the
+                         horizon, the night gradient floods in, then the star
+                         layers appear one after another, and finally the
+                         meteors resume.
+       SUNRISE (-> light) stars go out first, then the night gradient lifts
+                         while the sun climbs back and clouds drift in.
+
+     The transitions live on dedicated wrapper elements, never on the animated
+     children, so they cannot fight the keyframes underneath. Day is the
+     default (matches tokens.css). The no-JS media block mirrors the dark
+     block. KEEP IN SYNC. */
+  .sky {
+    /* --- light / day state (sunrise timing) --- */
+    --night: 0;
+    --ng-d: 1.4s;  --ng-l: 0.3s;                 /* night gradient lifts */
+    --st-d: 0.6s;  --st-l1: 0s;   --st-l2: 0s;   --st-l3: 0s;  /* stars out */
+    --mt-d: 0.3s;  --mt-l: 0s;                   /* meteors out */
+    --sun-d: 1.4s; --sun-l: 0.3s; --sun-e: cubic-bezier(0.22, 1, 0.36, 1);
+    --cl-d: 1.3s;  --cl-l: 0.3s;                 /* clouds drift in */
+    --mo-d: 1s;    --mo-l: 0.7s;                 /* motes return */
+    --night-vis: hidden;  --night-vis-l: 1.4s;
+    --day-vis: visible;   --day-vis-l: 0s;
+  }
+  :global([data-theme='dark']) .sky {
+    /* --- dark / night state (sunset timing) --- */
+    --night: 1;
+    --ng-d: 1.4s;  --ng-l: 0s;
+    --st-d: 0.9s;  --st-l1: 0.4s; --st-l2: 0.65s; --st-l3: 0.9s;
+    --mt-d: 0.8s;  --mt-l: 1.8s;
+    --sun-d: 1.2s; --sun-l: 0s;   --sun-e: cubic-bezier(0.55, 0, 0.85, 0.4);
+    --cl-d: 0.9s;  --cl-l: 0s;
+    --mo-d: 0.5s;  --mo-l: 0s;
+    --night-vis: visible; --night-vis-l: 0s;
+    --day-vis: hidden;    --day-vis-l: 1.4s;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .sky {
+      --night: 1;
+      --night-vis: visible;
+      --day-vis: hidden;
+    }
+  }
+
+  /* The day gradient is the permanent bottom layer. */
   .sky__day {
     background: linear-gradient(
       to bottom,
@@ -188,47 +277,57 @@ const MOTES = Array.from({ length: 18 }, () => ({
       var(--day-peach)
     );
   }
-
+  /* Whole scenes drop out of rendering once they are fully faded. */
   .sky__night {
+    visibility: var(--night-vis);
+    transition: visibility 0s linear var(--night-vis-l);
+  }
+  .day__fx {
+    visibility: var(--day-vis);
+    transition: visibility 0s linear var(--day-vis-l);
+  }
+
+  .night__sky {
     background: linear-gradient(
       to bottom,
       var(--night-950),
       var(--night-900) 55%,
       var(--night-800)
     );
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 1.2s var(--ease-in-out),
-      visibility 0s linear 1.2s;
-  }
-  .sky__day {
-    transition:
-      opacity 1.2s var(--ease-in-out),
-      visibility 0s;
+    opacity: var(--night);
+    transition: opacity var(--ng-d) var(--ease-in-out) var(--ng-l);
   }
 
-  :global([data-theme='dark']) .sky__night {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s, 0s;
+  .night__stars {
+    opacity: var(--night);
+    transition: opacity var(--st-d) ease-out;
   }
-  :global([data-theme='dark']) .sky__day {
-    opacity: 0;
-    visibility: hidden;
+  .night__stars--1 { transition-delay: var(--st-l1); }
+  .night__stars--2 { transition-delay: var(--st-l2); }
+  .night__stars--3 { transition-delay: var(--st-l3); }
+
+  .night__meteors {
+    opacity: var(--night);
+    transition: opacity var(--mt-d) linear var(--mt-l);
+  }
+
+  .day__sun {
+    opacity: calc(1 - var(--night));
+    transform: translateY(calc(var(--night) * 85vh));
     transition:
-      opacity 1.2s var(--ease-in-out),
-      visibility 0s linear 1.2s;
+      opacity var(--sun-d) var(--ease-in-out) var(--sun-l),
+      transform var(--sun-d) var(--sun-e) var(--sun-l);
   }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme])) .sky__night {
-      opacity: 1;
-      visibility: visible;
-    }
-    :global(:root:not([data-theme])) .sky__day {
-      opacity: 0;
-      visibility: hidden;
-    }
+  .day__clouds {
+    opacity: calc(1 - var(--night));
+    transform: translate(calc(var(--night) * -14vw), calc(var(--night) * 6vh));
+    transition:
+      opacity var(--cl-d) var(--ease-in-out) var(--cl-l),
+      transform var(--cl-d) var(--ease-out) var(--cl-l);
+  }
+  .day__motes {
+    opacity: calc(1 - var(--night));
+    transition: opacity var(--mo-d) ease var(--mo-l);
   }
 
   /* Nothing animates in a scene nobody can see: night is paused by default
@@ -497,8 +596,15 @@ const MOTES = Array.from({ length: 18 }, () => ({
     .mote {
       display: none;
     }
+    /* The theme swap is an instant cut, not a sunrise. */
     .sky__night,
-    .sky__day {
+    .day__fx,
+    .night__sky,
+    .night__stars,
+    .night__meteors,
+    .day__sun,
+    .day__clouds,
+    .day__motes {
       transition: none;
     }
   }

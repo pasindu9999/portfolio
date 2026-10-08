@@ -22,15 +22,18 @@
   padding: var(--space-2xs) var(--space-s);
   background-color: var(--field-bg);
   border: 1px solid var(--field-border);
-  border-radius: 0;
+  border-radius: var(--radius-s);
   font-size: var(--step-0);
-  transition: border-color var(--dur-fast) var(--ease-out);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
 }
 .field input:focus-visible,
 .field textarea:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-color: var(--focus);
+  box-shadow: var(--glow);
 }
 .field textarea {
   resize: vertical;
