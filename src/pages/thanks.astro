@@ -12,13 +12,13 @@ import SiteFooter from '../components/SiteFooter.astro';
   <SiteFooter slot="footer" />
 
   <section class="thanks">
-    <p class="eyebrow">Contact</p>
-    <h1>Message sent.</h1>
+    <p class="pill">Contact</p>
+    <h1>Message <span>sent.</span></h1>
     <p class="measure">
       Thanks for reaching out. I read everything and reply to most messages
       within a couple of days.
     </p>
-    <a class="btn" href="/">Back to the index</a>
+    <a class="btn btn--fill" href="/">Back to the index</a>
   </section>
 </BaseLayout>
 
@@ -29,20 +29,12 @@ import SiteFooter from '../components/SiteFooter.astro';
     padding: var(--space-3xl) var(--gutter);
     display: grid;
     gap: var(--space-s);
-    justify-items: start;
+    justify-items: center;
+    text-align: center;
     min-block-size: 60svh;
     align-content: center;
   }
   .thanks h1 { font-size: var(--step-5); letter-spacing: -0.04em; }
-  .btn {
-    display: inline-flex;
-    gap: var(--space-2xs);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    text-decoration: none;
-    padding: var(--space-2xs) var(--space-s);
-    border: 1px solid var(--rule-strong);
-    margin-block-start: var(--space-s);
-  }
-  .btn:hover { background-color: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .thanks h1 span { color: var(--accent); }
+  .thanks .btn { justify-self: center; margin-block-start: var(--space-s); }
 </style>

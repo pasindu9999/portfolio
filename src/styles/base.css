@@ -32,8 +32,8 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100svh;
   /* Theme swap should feel deliberate, not instant-snap. */
-  transition: background-color var(--dur) var(--ease-out),
-              color var(--dur) var(--ease-out);
+  transition: background-color var(--dur-theme) var(--ease-out),
+              color var(--dur-theme) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -42,9 +42,9 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
   text-wrap: balance;
   color: var(--ink);
 }
@@ -95,6 +95,31 @@ button { cursor: pointer; }
 
 ul[class], ol[class] { list-style: none; }
 
+/* While the theme is switching (class set for ~1.8s by ThemeToggle), every
+   colour eases instead of snapping. The text fade is short and deliberately
+   LATE: it is timed to land when the sky is passing through mid-dusk (sunset:
+   0.45s in; sunrise: 0.75s in, because the night gradient lifts after the
+   stars go out). A long fade would hold mid-grey text on a mid-grey sky for
+   twice as long -- modelled at ~200ms below 3:1 contrast vs ~110ms here.
+   Keep in step with the --ng-* timings in Sky.astro.
+   !important is deliberate and temporary: it must beat per-component hover
+   transitions for the duration of the switch only. */
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition:
+    color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    background-color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    border-color 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    box-shadow 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    text-shadow 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    fill 0.5s var(--ease-in-out) var(--theme-lag, 0.45s),
+    stroke 0.5s var(--ease-in-out) var(--theme-lag, 0.45s) !important;
+}
+html[data-theme='light'].theme-changing {
+  --theme-lag: 0.75s;
+}
+
 /* Reduced motion means NO animation, not slower animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -114,8 +139,9 @@ ul[class], ol[class] { list-style: none; }
   left: var(--space-2xs);
   z-index: 100;
   padding: var(--space-2xs) var(--space-s);
-  background-color: var(--accent);
+  background-color: var(--accent-fill);
   color: var(--accent-ink);
+  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: var(--step--1);
   text-decoration: none;

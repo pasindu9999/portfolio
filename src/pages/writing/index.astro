@@ -24,7 +24,7 @@ const fmt = new Intl.DateTimeFormat('en-GB', {
 
   <section class="writing wrap">
     <p class="eyebrow">Writing</p>
-    <h1 class="writing__title">Notes</h1>
+    <h1 class="writing__title"><span>Notes</span></h1>
     <p class="measure writing__intro">
       Short pieces on architecture decisions, things that broke, and what I
       took from them.
@@ -69,30 +69,54 @@ const fmt = new Intl.DateTimeFormat('en-GB', {
   .writing {
     padding-block: var(--space-xl) var(--space-3xl);
     min-block-size: 60svh;
+    text-align: center;
   }
   .writing__title {
-    font-size: var(--step-6);
+    font-size: var(--step-5);
     letter-spacing: -0.04em;
     margin-block: var(--space-2xs) var(--space-s);
+  }
+  .writing__title span {
+    color: var(--accent);
   }
   .writing__intro {
     font-size: var(--step-1);
     color: var(--ink-muted);
+    margin-inline: auto;
     margin-block-end: var(--space-xl);
   }
   .writing__empty {
-    color: var(--ink-subtle);
+    color: var(--ink-muted);
     max-inline-size: var(--measure);
-    padding-block-start: var(--space-m);
-    border-block-start: 1px solid var(--rule);
+    margin-inline: auto;
+    padding: var(--space-m);
+    background-color: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
   }
 
+  /* Each post is a glass card, not a hairline row. */
   .ledger {
     list-style: none;
-    border-block-start: 1px solid var(--rule);
+    display: grid;
+    gap: var(--space-s);
+    text-align: start;
   }
   .ledger__row {
-    border-block-end: 1px solid var(--rule);
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
+    transition:
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+  .ledger__row:hover,
+  .ledger__row:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--elevation-hover);
   }
   .ledger__link {
     display: grid;
@@ -103,7 +127,8 @@ const fmt = new Intl.DateTimeFormat('en-GB', {
     align-items: baseline;
     column-gap: var(--space-s);
     row-gap: var(--space-3xs);
-    padding-block: var(--space-m);
+    padding: var(--space-m);
+    border-radius: var(--radius);
     text-decoration: none;
     color: inherit;
     transition:
@@ -148,7 +173,7 @@ const fmt = new Intl.DateTimeFormat('en-GB', {
   }
   .ledger__link:hover,
   .ledger__link:focus-visible {
-    padding-inline-start: var(--space-s);
+    padding-inline-start: var(--space-l);
     color: var(--accent);
   }
   .ledger__link:hover .ledger__arrow,
@@ -157,6 +182,7 @@ const fmt = new Intl.DateTimeFormat('en-GB', {
     translate: 0 0;
   }
   @media (prefers-reduced-motion: reduce) {
+    .ledger__row,
     .ledger__link,
     .ledger__arrow {
       transition: none;

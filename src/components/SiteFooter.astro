@@ -33,6 +33,16 @@ const year = new Date().getFullYear();
 
     <p class="site-footer__legal mono">
       &copy; {year} {SITE.name}. All rights reserved.
+      <!-- Only shown once someone has picked a theme by hand: the single
+           sun/moon button has no "system" position, so this is the way back. -->
+      <button
+        class="site-footer__reset"
+        id="theme-reset"
+        type="button"
+        hidden
+      >
+        Use system theme
+      </button>
     </p>
   </div>
 </footer>
@@ -70,4 +80,46 @@ const year = new Date().getFullYear();
     font-size: var(--step--1);
   }
   .site-footer__legal { color: var(--ink-subtle); font-size: var(--step--2); }
+  .site-footer__reset {
+    margin-inline-start: var(--space-s);
+    padding: 0;
+    font: inherit;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+  }
+  .site-footer__reset:hover { color: var(--accent-hover); }
+  .site-footer__reset[hidden] { display: none; }
 </style>
+
+<script>
+  const reset = document.getElementById('theme-reset');
+  if (reset) {
+    const hasChoice = () => {
+      try {
+        const v = localStorage.getItem('theme');
+        return v === 'light' || v === 'dark';
+      } catch {
+        return false;
+      }
+    };
+    const sync = () => {
+      reset.hidden = !hasChoice();
+    };
+    sync();
+    window.addEventListener('theme:stored', sync);
+
+    reset.addEventListener('click', () => {
+      try {
+        localStorage.removeItem('theme');
+      } catch {
+        /* nothing stored to clear */
+      }
+      // ThemeToggle listens for this and repaints from the OS preference.
+      window.dispatchEvent(new Event('theme:reset'));
+      sync();
+      // The button just vanished; hand focus to the control that replaces it.
+      document.getElementById('theme-toggle')?.focus();
+    });
+  }
+</script>

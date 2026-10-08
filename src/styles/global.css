@@ -10,6 +10,7 @@
 @import './tokens.css';
 @import './base.css';
 @import './layout.css';
+@import './components.css';
 @import './motion.css';
 @import './forms.css';
 
@@ -33,11 +34,14 @@
   --color-accent:         var(--accent);
   --color-accent-hover:   var(--accent-hover);
   --color-accent-ink:     var(--accent-ink);
+  --color-accent-fill:    var(--accent-fill);
+  --color-glass:          var(--glass);
 
   /* Astro's Fonts API owns --face-*; Tailwind's font namespace is --font-*.
-     They are deliberately different names -- pointing --font-display at
-     itself is a circular reference that silently kills the declaration. */
-  --font-display: var(--face-display);
+     They are deliberately different names -- pointing --font-body at
+     itself is a circular reference that silently kills the declaration.
+     One family for everything: headings are Geist at a heavier weight. */
+  --font-display: var(--face-body);
   --font-body:    var(--face-body);
   --font-mono:    var(--face-mono);
 

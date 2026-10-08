@@ -2,8 +2,8 @@
 title: 'Employee Performance Appraisal System'
 blurb: 'A web application streamlining the employee appraisal process, specialising in performance rating and performance-based salary increments.'
 tags: ['Angular', 'ASP.NET', 'SQL Server']
-cover: '../../assets/projects/performance-appraisal.png'
-coverAlt: 'Typographic cover: a rating scorecard with quality, timeliness and teamwork bars beneath an overall score.'
+cover: '../../assets/projects/performance-appraisal-cover.png'
+coverAlt: 'Illustration: a star rating and quality, timeliness and teamwork bars leading down to a rising staircase labelled salary increment.'
 year: 2022
 role: 'Research team'
 timeline: 'Dec 2021 – Aug 2022'

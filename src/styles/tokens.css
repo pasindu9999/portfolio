@@ -4,39 +4,41 @@
      1. Primitive  -- raw values, theme-agnostic, never used by components.
      2. Semantic   -- what components actually consume. Remapped per theme.
 
-   The override set between themes is deliberately ASYMMETRIC. This is not an
-   inversion: the accent changes hue, and elevation is expressed differently
-   (light = lighter surface + shadow, dark = lighter surface + hairline, no
-   shadow) because shadows do not read on near-black.
+   The two themes are a pair of skies, not an inversion: a night sky (deep
+   indigo, stars) and a daytime sky (blue -> lavender -> peach, clouds). They
+   share one purple accent family and differ in how a surface is built:
+   light = frosted white glass + soft lavender shadow, dark = tinted navy glass
+   + luminous hairline (shadows do not read on a night sky).
    ========================================================================= */
 
 :root {
-  /* --- Primitive: paper ramp (warm) --- */
-  --paper-50:  #fbfaf7;
-  --paper-100: #f4f1eb;
-  --paper-200: #e8e4db;
-  --paper-300: #d8d3c7;
+  /* --- Primitive: day sky --- */
+  --day-blue:     #c4defb;
+  --day-lavender: #ddd7fb;
+  --day-peach:    #fbe1d3;
 
-  /* --- Primitive: ink ramp (warm near-black -> warm off-white) --- */
-  --ink-900: #16130f;
-  --ink-700: #3a352d;
-  --ink-500: #5c574e;
-  --ink-400: #7a7469;
-  --ink-200: #a29d93;
-  --ink-100: #edeae3;
+  /* --- Primitive: night sky --- */
+  --night-950: #04061a;
+  --night-900: #0a0e2c;
+  --night-800: #1b1340;
+  --night-700: #141a3c;
 
-  /* --- Primitive: night ramp (cool) --- */
-  --night-900: #08090b;
-  --night-800: #0c0d10;
-  --night-700: #16181d;
-  --night-600: #202329;
+  /* --- Primitive: navy ink (light theme text) --- */
+  --navy-900: #0f1733;
+  --navy-700: #3b4566;
+  --navy-500: #4d5578;
 
-  /* --- Primitive: accents --- */
-  --olive-600:  #4a6000;  /* light-theme accent -- a darkened lime, not blue */
-  --olive-700:  #3d5500;
-  --citron-400: #d8ff47;  /* dark-theme accent */
-  --citron-500: #c2e82f;
+  /* --- Primitive: starlight ink (dark theme text) --- */
+  --star-100: #e8e9f6;
+  --star-300: #aab0cf;
+  --star-500: #8a92b8;
 
+  /* --- Primitive: purple accents --- */
+  --violet-700: #5b2fd0;  /* light-theme accent text */
+  --violet-600: #6d28d9;  /* light-theme fill */
+  --violet-500: #7c3aed;  /* dark-theme fill */
+  --violet-300: #b39dff;  /* dark-theme accent text */
+  --violet-200: #cbbcff;  /* dark-theme accent hover */
 }
 
 /* Light values live on BOTH :root and [data-theme='light'] so a subtree can be
@@ -45,65 +47,104 @@
 :root,
 [data-theme='light'] {
   /* ---------------------------------------------------------------------
-     SEMANTIC -- light theme ("paper") is the default.
-     Measured contrast (npm run check:contrast):
-       ink 16.4:1   ink-muted 6.4:1   accent 6.3:1   accent-ink/accent 7.1:1
-       ink-subtle 4.1:1 -> large text and non-text UI only, never body copy.
+     SEMANTIC -- light theme ("daytime sky") is the default.
+     Measured contrast (npm run check:contrast), worst case across the sky:
+       ink 12.8:1  ink-muted 6.8:1  accent 5.5:1  accent-ink/accent-fill 7.1:1
+       ink-subtle 5.3:1 (AA for small text).
      --------------------------------------------------------------------- */
-  --surface:        var(--paper-100);
-  --surface-raised: var(--paper-50);
-  --surface-sunken: var(--paper-200);
-  --ink:            var(--ink-900);
-  --ink-muted:      var(--ink-500);
-  --ink-subtle:     var(--ink-400);
-  --rule:           rgb(22 19 15 / 0.14);
-  --rule-strong:    rgb(22 19 15 / 0.32);
-  --accent:         var(--olive-600);
-  --accent-hover:   var(--olive-700);
-  --accent-ink:     #ffffff;
-  --focus:          var(--olive-600);
-  --selection-bg:   var(--olive-600);
-  --selection-ink:  #ffffff;
+  --sky-1: var(--day-blue);
+  --sky-2: var(--day-lavender);
+  --sky-3: var(--day-peach);
+
+  /* Solid fallbacks: what is under the sky, and what a glass card looks like
+     once flattened. Also what contrast is measured against. */
+  --surface:        #dde3fb;
+  --surface-raised: #f2f0fd;
+  --surface-sunken: #d3dcf8;
+
+  --ink:         var(--navy-900);
+  --ink-muted:   var(--navy-700);
+  --ink-subtle:  var(--navy-500);
+  --rule:        rgb(15 23 51 / 0.12);
+  --rule-strong: rgb(15 23 51 / 0.3);
+
+  --accent:         var(--violet-700);
+  --accent-hover:   #4a22b0;
+  /* Text colour on --accent-fill. Fill is a deeper step than the text accent
+     so white text on a button clears AA. */
+  --accent-fill:     var(--violet-600);
+  --accent-fill-hover: #5b21b6;
+  --accent-ink:      #ffffff;
+  --focus:           var(--violet-700);
+  --selection-bg:    var(--violet-600);
+  --selection-ink:   #ffffff;
+
+  /* Frosted glass. Cards, header, toggle. */
+  --glass:        rgb(255 255 255 / 0.62);
+  --glass-border: rgb(255 255 255 / 0.65);
+  --glass-blur:   blur(14px) saturate(140%);
 
   /* Elevation differs per theme by design. */
-  --elevation: 0 1px 2px rgb(22 19 15 / 0.06), 0 8px 24px -8px rgb(22 19 15 / 0.12);
-  /* Imagery: full saturation on paper. */
+  --elevation:
+    0 1px 2px rgb(76 60 160 / 0.06), 0 8px 32px -8px rgb(76 60 160 / 0.18);
+  --elevation-hover:
+    0 2px 4px rgb(76 60 160 / 0.08), 0 16px 40px -8px rgb(76 60 160 / 0.28);
+  --glow: 0 0 0 transparent;
+  --text-glow: none;
+
+  /* Imagery: full saturation by day. */
   --img-filter: none;
 
-  /* Form fields (contact page). Decorative-adjacent but checked for contrast. */
-  --field-bg:     var(--paper-200);
-  --field-border: rgb(22 19 15 / 0.55);
+  /* Form fields (contact page). Checked for contrast. */
+  --field-bg:     #f7f6fe;
+  --field-border: rgb(15 23 51 / 0.55);
 
-  /* Decorative-only (excluded from contrast checks): the hero texture dots. */
-  --texture: rgb(22 19 15 / 0.07);
+  /* Decorative-only (excluded from contrast checks). */
+  --texture: rgb(15 23 51 / 0.05);
 }
 
-/* Measured contrast: ink 16.2:1  ink-muted 7.2:1  accent 17.0:1
-   ink-subtle 3.6:1 -> large text and non-text UI only. */
+/* Measured contrast, worst case across the sky: ink 14.4:1  ink-muted 8.1:1
+   accent 7.4:1  accent-ink/accent-fill 5.7:1  ink-subtle 5.6:1 (AA for small
+   text). */
 [data-theme='dark'] {
-  --surface:        var(--night-800);
-  --surface-raised: var(--night-700);
-  --surface-sunken: var(--night-900);
-  --ink:            var(--ink-100);
-  --ink-muted:      var(--ink-200);
-  --ink-subtle:     #6e6960;
-  --rule:           rgb(237 234 227 / 0.16);
-  --rule-strong:    rgb(237 234 227 / 0.36);
-  --accent:         var(--citron-400);
-  --accent-hover:   var(--citron-500);
-  --accent-ink:     var(--night-800);
-  --focus:          var(--citron-400);
-  --selection-bg:   var(--citron-400);
-  --selection-ink:  var(--night-800);
+  --sky-1: var(--night-950);
+  --sky-2: var(--night-900);
+  --sky-3: var(--night-800);
 
-  /* No shadow on near-black -- elevation reads as a luminous hairline. */
-  --elevation: 0 0 0 1px rgb(237 234 227 / 0.08);
+  --surface:        var(--night-900);
+  --surface-raised: #101536;
+  --surface-sunken: var(--night-950);
+
+  --ink:         var(--star-100);
+  --ink-muted:   var(--star-300);
+  --ink-subtle:  var(--star-500);
+  --rule:        rgb(232 233 246 / 0.14);
+  --rule-strong: rgb(232 233 246 / 0.34);
+
+  --accent:         var(--violet-300);
+  --accent-hover:   var(--violet-200);
+  --accent-fill:    var(--violet-500);
+  --accent-fill-hover: #6d28d9;
+  --accent-ink:     #ffffff;
+  --focus:          var(--violet-300);
+  --selection-bg:   var(--violet-500);
+  --selection-ink:  #ffffff;
+
+  --glass:        rgb(20 26 60 / 0.6);
+  --glass-border: rgb(179 157 255 / 0.14);
+  --glass-blur:   blur(14px) saturate(120%);
+
+  /* No shadow on a night sky -- elevation reads as a luminous hairline. */
+  --elevation:       0 0 0 1px rgb(179 157 255 / 0.1);
+  --elevation-hover: 0 0 0 1px rgb(179 157 255 / 0.4), 0 0 28px -4px rgb(124 58 237 / 0.45);
+  --glow: 0 0 18px rgb(124 58 237 / 0.45);
+  --text-glow: 0 0 12px rgb(167 139 250 / 0.5);
   /* Full-saturation photography glares against a dark field. */
-  --img-filter: saturate(0.85) brightness(0.88) contrast(1.02);
+  --img-filter: saturate(0.88) brightness(0.9) contrast(1.02);
 
-  --field-bg:     var(--night-900);
-  --field-border: rgb(237 234 227 / 0.45);
-  --texture:      rgb(237 234 227 / 0.05);
+  --field-bg:     var(--night-950);
+  --field-border: rgb(232 233 246 / 0.45);
+  --texture:      rgb(232 233 246 / 0.05);
 }
 
 /* ---------------------------------------------------------------------------
@@ -117,26 +158,63 @@
    --------------------------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --surface:        var(--night-800);
-    --surface-raised: var(--night-700);
-    --surface-sunken: var(--night-900);
-    --ink:            var(--ink-100);
-    --ink-muted:      var(--ink-200);
-    --ink-subtle:     #6e6960;
-    --rule:           rgb(237 234 227 / 0.16);
-    --rule-strong:    rgb(237 234 227 / 0.36);
-    --accent:         var(--citron-400);
-    --accent-hover:   var(--citron-500);
-    --accent-ink:     var(--night-800);
-    --focus:          var(--citron-400);
-    --selection-bg:   var(--citron-400);
-    --selection-ink:  var(--night-800);
-    --elevation:      0 0 0 1px rgb(237 234 227 / 0.08);
-    --img-filter:     saturate(0.85) brightness(0.88) contrast(1.02);
-    --field-bg:       var(--night-900);
-    --field-border:   rgb(237 234 227 / 0.45);
-    --texture:        rgb(237 234 227 / 0.05);
+    --sky-1: var(--night-950);
+    --sky-2: var(--night-900);
+    --sky-3: var(--night-800);
+    --surface:        var(--night-900);
+    --surface-raised: #101536;
+    --surface-sunken: var(--night-950);
+    --ink:            var(--star-100);
+    --ink-muted:      var(--star-300);
+    --ink-subtle:     var(--star-500);
+    --rule:           rgb(232 233 246 / 0.14);
+    --rule-strong:    rgb(232 233 246 / 0.34);
+    --accent:         var(--violet-300);
+    --accent-hover:   var(--violet-200);
+    --accent-fill:    var(--violet-500);
+    --accent-fill-hover: #6d28d9;
+    --accent-ink:     #ffffff;
+    --focus:          var(--violet-300);
+    --selection-bg:   var(--violet-500);
+    --selection-ink:  #ffffff;
+    --glass:          rgb(20 26 60 / 0.6);
+    --glass-border:   rgb(179 157 255 / 0.14);
+    --glass-blur:     blur(14px) saturate(120%);
+    --elevation:      0 0 0 1px rgb(179 157 255 / 0.1);
+    --elevation-hover: 0 0 0 1px rgb(179 157 255 / 0.4), 0 0 28px -4px rgb(124 58 237 / 0.45);
+    --glow:           0 0 18px rgb(124 58 237 / 0.45);
+    --text-glow:      0 0 12px rgb(167 139 250 / 0.5);
+    --img-filter:     saturate(0.88) brightness(0.9) contrast(1.02);
+    --field-bg:       var(--night-950);
+    --field-border:   rgb(232 233 246 / 0.45);
+    --texture:        rgb(232 233 246 / 0.05);
     color-scheme: dark;
+  }
+}
+
+/* Small screens: no backdrop-filter over what will be an animating sky. The
+   glass becomes (almost) opaque instead, which is cheaper and still reads as a
+   raised surface. Same fallback where backdrop-filter is unsupported. */
+@media (width < 48rem) {
+  :root,
+  [data-theme='light'] {
+    --glass: rgb(255 255 255 / 0.78);
+    --glass-blur: none;
+  }
+  [data-theme='dark'] {
+    --glass: rgb(20 26 60 / 0.82);
+    --glass-blur: none;
+  }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  :root,
+  [data-theme='light'] {
+    --glass: rgb(255 255 255 / 0.78);
+    --glass-blur: none;
+  }
+  [data-theme='dark'] {
+    --glass: rgb(20 26 60 / 0.88);
+    --glass-blur: none;
   }
 }
 
@@ -152,10 +230,10 @@
   --step-5:  clamp(2.49rem, 1.92rem + 2.83vw, 3.82rem);
   --step-6:  clamp(2.99rem, 2.21rem + 3.89vw, 4.77rem);
   --step-7:  clamp(3.58rem, 2.53rem + 5.27vw, 5.96rem);
-  /* The masthead anchor. Intentionally outside the ramp -- it is a graphic.
-     Tuned so the longest line ("KURUKULA", 8 chars) fits the viewport at every
-     size. Do not raise this without re-checking the longest line. */
-  --step-anchor: clamp(2.75rem, 14.5vw, 13rem);
+  /* The hero headline. Outside the ramp -- it is a graphic. Tuned so the
+     longest word ("Kurukulasooriya", 15 chars) fits a 320px viewport; the
+     name wraps onto its own line below that. */
+  --step-anchor: clamp(2.1rem, 0.9rem + 6.2vw, 5.75rem);
 
   /* --- Fluid space scale --- */
   --space-3xs: clamp(0.25rem, 0.24rem + 0.05vw, 0.31rem);
@@ -168,6 +246,11 @@
   --space-2xl: clamp(4.00rem, 3.83rem + 0.86vw, 5.00rem);
   --space-3xl: clamp(6.00rem, 5.74rem + 1.29vw, 7.50rem);
 
+  /* --- Shape --- */
+  --radius-s: 0.5rem;
+  --radius:   1rem;
+  --radius-pill: 999px;
+
   /* --- Grid --- */
   --gutter: var(--space-s);
   --measure: 68ch;
@@ -178,7 +261,6 @@
   --dur-fast: 150ms;
   --dur: 280ms;
   --dur-slow: 560ms;
-
-  /* --- Hero texture (dot grid) --- */
-  --texture-size: 24px;
+  /* Colour easing when the theme flips. Matches the sunrise/sunset timing. */
+  --dur-theme: 700ms;
 }

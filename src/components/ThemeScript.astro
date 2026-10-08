@@ -33,5 +33,16 @@
     // match. This is what kills the white-flash-before-CSS, as distinct from
     // the wrong-theme-content problem.
     el.style.colorScheme = resolved;
+
+    // Browser chrome (mobile address bar) follows the sky. KEEP the two
+    // colours in sync with the top gradient stops in tokens.css, and with
+    // THEME_COLOR in ThemeToggle.astro.
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = resolved === 'dark' ? '#04061a' : '#c4defb';
   })();
 </script>

@@ -2,8 +2,8 @@
 title: 'Automated Movie Content Rating System'
 blurb: 'An AI system classifying movie content against age-appropriateness guidelines, using YOLOv8 for human action recognition in video clips.'
 tags: ['Python', 'YOLOv8']
-cover: '../../assets/projects/movie-rating.png'
-coverAlt: 'Typographic cover: a filmstrip of frames, one picked out as the classified frame.'
+cover: '../../assets/projects/movie-rating-cover.png'
+coverAlt: 'Illustration: a film frame with a person detected inside a bounding box and their pose tracked, above a strip of neighbouring frames.'
 year: 2024
 role: 'Research team — built the substance-abuse detection sub-module'
 timeline: 'Sep 2023 – May 2024'

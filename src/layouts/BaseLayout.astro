@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import ThemeScript from '../components/ThemeScript.astro';
+import Sky from '../components/Sky.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -52,7 +53,6 @@ const fullTitle =
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <Font cssVariable="--face-display" preload />
     <Font cssVariable="--face-body" preload />
     <Font cssVariable="--face-mono" />
 
@@ -60,6 +60,7 @@ const fullTitle =
   </head>
 
   <body>
+    <Sky />
     <a class="skip-link" href="#main">Skip to content</a>
     <slot name="header" />
     <main id="main">

@@ -1,0 +1,619 @@
+---
+/**
+ * The animated sky behind every page: two stacked scenes, one per theme.
+ *
+ *   .sky__night   deep indigo gradient, twinkling stars, shooting stars
+ *   .sky__day     daytime gradient (clouds, sun and motes arrive in phase 3)
+ *
+ * Why it is built this way:
+ *  - Star and meteor positions are generated HERE, at build time, with a
+ *    seeded PRNG. The runtime ships no JS to place or re-place anything, the
+ *    sky is identical on every page, and a window resize cannot reshuffle it.
+ *  - Stars are not 200 elements. A layer is ONE tiny element whose
+ *    box-shadow carries every dot, and the twinkle is an opacity animation on
+ *    that layer -- a handful of compositor-only animations, not hundreds of
+ *    nodes. Layers twinkle at different periods so the sky does not pulse in
+ *    unison; a few individually animated "bright" stars carry the sparkle.
+ *  - Everything animates transform/opacity only: no layout, no paint.
+ *  - The scene that is not showing is paused, and everything pauses while the
+ *    tab is hidden (script at the bottom).
+ */
+
+// mulberry32 -- tiny seeded PRNG so the layout is deterministic.
+function rng(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
+const rand = rng(20260814);
+const between = (lo: number, hi: number) => r2(lo + rand() * (hi - lo));
+
+// Mostly white, a few starlight-blue and lavender so the field is not sterile.
+const STAR_COLOURS = ['#ffffff', '#ffffff', '#ffffff', '#e8e9f6', '#cbbcff'];
+
+/** box-shadow list for `n` dots scattered over the viewport. */
+function dots(n: number, blur: number) {
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    // Skew slightly toward the top of the sky; the horizon is hazier.
+    const y = r2(Math.pow(rand(), 1.25) * 100);
+    const x = r2(rand() * 100);
+    const colour = STAR_COLOURS[Math.floor(rand() * STAR_COLOURS.length)];
+    out.push(`${x}vw ${y}vh ${blur}px 0 ${colour}`);
+  }
+  return out.join(',');
+}
+
+// id, dot count, dot size (px), blur (px), twinkle period (s)
+const LAYERS = [
+  { id: 'a1', n: 45, size: 1, blur: 0, dur: 3.1 },
+  { id: 'a2', n: 45, size: 1, blur: 0, dur: 4.3 },
+  { id: 'b1', n: 30, size: 2, blur: 0.5, dur: 4.7 },
+  { id: 'b2', n: 25, size: 2, blur: 0.5, dur: 5.9 },
+  { id: 'c', n: 22, size: 3, blur: 1, dur: 6.3 },
+].map((l) => ({ ...l, shadow: dots(l.n, l.blur), delay: -between(0, l.dur) }));
+
+const BRIGHT = Array.from({ length: 10 }, () => ({
+  x: between(4, 96),
+  y: between(3, 70),
+  size: between(2.5, 4),
+  dur: between(2.6, 5.4),
+  delay: -between(0, 5),
+}));
+
+// Cycle lengths are deliberately uneven so the streaks never fall into step.
+// Together they average roughly one meteor every 2.5s on desktop.
+const METEORS = [
+  { x: 62, y: 6, len: 130, dur: 11, delay: 2 },
+  { x: 88, y: 22, len: 110, dur: 15, delay: 7 },
+  { x: 45, y: 2, len: 150, dur: 10, delay: 4.5 },
+  { x: 78, y: 40, len: 100, dur: 13, delay: 10 },
+  { x: 30, y: 14, len: 120, dur: 16, delay: 6 },
+];
+
+// ---- Day scene ------------------------------------------------------------
+// Clouds: w = width (vw), y = top (vh), dur = one full drift across the sky (s),
+// p = how far along that drift the cloud already is at page load, so the sky
+// is populated immediately instead of clouds queuing up off-screen. Bigger
+// clouds are "nearer", so they drift faster and sit a little more opaque.
+const CLOUDS = [
+  { w: 50, y: 6, dur: 105, p: 0.12, op: 0.85, blur: 14 },
+  { w: 34, y: 24, dur: 150, p: 0.46, op: 0.75, blur: 12 },
+  { w: 44, y: 44, dur: 125, p: 0.7, op: 0.8, blur: 14 },
+  { w: 30, y: 62, dur: 165, p: 0.3, op: 0.65, blur: 10 },
+  { w: 40, y: 78, dur: 135, p: 0.88, op: 0.7, blur: 13 },
+].map((c) => ({
+  ...c,
+  delay: -r2(c.dur * c.p),
+  // Where the cloud sits when it does not move (reduced motion).
+  x: Math.max(-4, r2(c.p * 100 - c.w / 2)),
+}));
+
+// Motes: pale specks that rise and fade, like pollen in sunlight.
+const MOTE_TINTS = ['#ffffff', '#ffffff', '#fff3d6', '#ffe4d1'];
+const MOTES = Array.from({ length: 18 }, () => ({
+  x: between(2, 98),
+  y: between(45, 100),
+  size: between(3, 7),
+  dur: between(16, 30),
+  delay: -between(0, 24),
+  rise: between(26, 46),
+  drift: Math.round(between(-40, 40)),
+  tint: MOTE_TINTS[Math.floor(rand() * MOTE_TINTS.length)],
+}));
+---
+
+<div class="sky" aria-hidden="true">
+  <!-- DAY. The gradient is the permanent bottom layer: the night sky fades in
+       OVER it and out again, so there is never a gap between the two. -->
+  <div class="sky__day">
+    <div class="day__fx">
+      <div class="day__sun"><div class="sun"></div></div>
+      <div class="day__clouds">
+        {
+          CLOUDS.map((c, i) => (
+            <span
+              class:list={['cloud', { 'cloud--extra': i >= 3 }]}
+              style={`--x:${c.x}vw;--y:${c.y}vh;--w:${c.w}vw;--dur:${c.dur}s;--delay:${c.delay}s;--op:${c.op};--blur:${c.blur}px`}
+            />
+          ))
+        }
+      </div>
+      <div class="day__motes">
+        {
+          MOTES.map((m, i) => (
+            <span
+              class:list={['mote', { 'mote--extra': i >= 9 }]}
+              style={`--x:${m.x}%;--y:${m.y}%;--size:${m.size}px;--dur:${m.dur}s;--delay:${m.delay}s;--rise:${m.rise}vh;--drift:${m.drift}px;--tint:${m.tint}`}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- NIGHT. Star layers sit in three groups so they can fade in one after
+       another at dusk. -->
+  <div class="sky__night">
+    <div class="night__sky"><div class="sky__nebula"></div></div>
+    <div class="night__stars night__stars--1">
+      {
+        LAYERS.filter((l) => l.id.startsWith('a')).map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__stars night__stars--2">
+      {
+        LAYERS.filter((l) => l.id.startsWith('b')).map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__stars night__stars--3">
+      {
+        LAYERS.filter((l) => l.id === 'c').map((l) => (
+          <span
+            class={`stars stars--${l.id}`}
+            style={`--size:${l.size}px;--dur:${l.dur}s;--delay:${l.delay}s;box-shadow:${l.shadow}`}
+          />
+        ))
+      }
+      {
+        BRIGHT.map((b, i) => (
+          <span
+            class:list={['star', { 'star--extra': i >= 6 }]}
+            style={`--x:${b.x}%;--y:${b.y}%;--size:${b.size}px;--dur:${b.dur}s;--delay:${b.delay}s`}
+          />
+        ))
+      }
+    </div>
+    <div class="night__meteors">
+      {
+        METEORS.map((m, i) => (
+          <span
+            class:list={['meteor', { 'meteor--extra': i >= 3 }]}
+            style={`--x:${m.x}%;--y:${m.y}%;--len:${m.len}px;--dur:${m.dur}s;--delay:${m.delay}s`}
+          />
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    /* Solid fallback while the scenes paint. */
+    background-color: var(--surface);
+  }
+
+  .sky__night,
+  .sky__day,
+  .day__fx,
+  .day__sun,
+  .day__clouds,
+  .day__motes,
+  .night__sky,
+  .night__stars,
+  .night__meteors {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ----------------------------------------------------- sunrise / sunset
+     ONE number, --night (0 = day, 1 = night), is set per theme; every part of
+     the sky derives its end state from it and eases there on its own clock.
+     The timing variables are set per theme TOO, because a CSS transition uses
+     the timing of the state it is heading INTO -- so each direction gets its
+     own choreography:
+
+       SUNSET (-> dark)  clouds sink and fade, the sun slips below the
+                         horizon, the night gradient floods in, then the star
+                         layers appear one after another, and finally the
+                         meteors resume.
+       SUNRISE (-> light) stars go out first, then the night gradient lifts
+                         while the sun climbs back and clouds drift in.
+
+     The transitions live on dedicated wrapper elements, never on the animated
+     children, so they cannot fight the keyframes underneath. Day is the
+     default (matches tokens.css). The no-JS media block mirrors the dark
+     block. KEEP IN SYNC. */
+  .sky {
+    /* --- light / day state (sunrise timing) --- */
+    --night: 0;
+    --ng-d: 1.4s;  --ng-l: 0.3s;                 /* night gradient lifts */
+    --st-d: 0.6s;  --st-l1: 0s;   --st-l2: 0s;   --st-l3: 0s;  /* stars out */
+    --mt-d: 0.3s;  --mt-l: 0s;                   /* meteors out */
+    --sun-d: 1.4s; --sun-l: 0.3s; --sun-e: cubic-bezier(0.22, 1, 0.36, 1);
+    --cl-d: 1.3s;  --cl-l: 0.3s;                 /* clouds drift in */
+    --mo-d: 1s;    --mo-l: 0.7s;                 /* motes return */
+    --night-vis: hidden;  --night-vis-l: 1.4s;
+    --day-vis: visible;   --day-vis-l: 0s;
+  }
+  :global([data-theme='dark']) .sky {
+    /* --- dark / night state (sunset timing) --- */
+    --night: 1;
+    --ng-d: 1.4s;  --ng-l: 0s;
+    --st-d: 0.9s;  --st-l1: 0.4s; --st-l2: 0.65s; --st-l3: 0.9s;
+    --mt-d: 0.8s;  --mt-l: 1.8s;
+    --sun-d: 1.2s; --sun-l: 0s;   --sun-e: cubic-bezier(0.55, 0, 0.85, 0.4);
+    --cl-d: 0.9s;  --cl-l: 0s;
+    --mo-d: 0.5s;  --mo-l: 0s;
+    --night-vis: visible; --night-vis-l: 0s;
+    --day-vis: hidden;    --day-vis-l: 1.4s;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .sky {
+      --night: 1;
+      --night-vis: visible;
+      --day-vis: hidden;
+    }
+  }
+
+  /* The day gradient is the permanent bottom layer. */
+  .sky__day {
+    background: linear-gradient(
+      to bottom,
+      var(--day-blue),
+      var(--day-lavender),
+      var(--day-peach)
+    );
+  }
+  /* Whole scenes drop out of rendering once they are fully faded. */
+  .sky__night {
+    visibility: var(--night-vis);
+    transition: visibility 0s linear var(--night-vis-l);
+  }
+  .day__fx {
+    visibility: var(--day-vis);
+    transition: visibility 0s linear var(--day-vis-l);
+  }
+
+  .night__sky {
+    background: linear-gradient(
+      to bottom,
+      var(--night-950),
+      var(--night-900) 55%,
+      var(--night-800)
+    );
+    opacity: var(--night);
+    transition: opacity var(--ng-d) var(--ease-in-out) var(--ng-l);
+  }
+
+  .night__stars {
+    opacity: var(--night);
+    transition: opacity var(--st-d) ease-out;
+  }
+  .night__stars--1 { transition-delay: var(--st-l1); }
+  .night__stars--2 { transition-delay: var(--st-l2); }
+  .night__stars--3 { transition-delay: var(--st-l3); }
+
+  .night__meteors {
+    opacity: var(--night);
+    transition: opacity var(--mt-d) linear var(--mt-l);
+  }
+
+  .day__sun {
+    opacity: calc(1 - var(--night));
+    transform: translateY(calc(var(--night) * 85vh));
+    transition:
+      opacity var(--sun-d) var(--ease-in-out) var(--sun-l),
+      transform var(--sun-d) var(--sun-e) var(--sun-l);
+  }
+  .day__clouds {
+    opacity: calc(1 - var(--night));
+    transform: translate(calc(var(--night) * -14vw), calc(var(--night) * 6vh));
+    transition:
+      opacity var(--cl-d) var(--ease-in-out) var(--cl-l),
+      transform var(--cl-d) var(--ease-out) var(--cl-l);
+  }
+  .day__motes {
+    opacity: calc(1 - var(--night));
+    transition: opacity var(--mo-d) ease var(--mo-l);
+  }
+
+  /* Nothing animates in a scene nobody can see: night is paused by default
+     (light is the default theme) and runs in dark; day is the reverse. */
+  .sky__night :is(.stars, .star, .meteor) {
+    animation-play-state: paused;
+  }
+  :global([data-theme='dark']) .sky__night :is(.stars, .star, .meteor) {
+    animation-play-state: running;
+  }
+  :global([data-theme='dark']) .sky__day :is(.sun, .cloud, .mote) {
+    animation-play-state: paused;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .sky__night :is(.stars, .star, .meteor) {
+      animation-play-state: running;
+    }
+    :global(:root:not([data-theme])) .sky__day :is(.sun, .cloud, .mote) {
+      animation-play-state: paused;
+    }
+  }
+
+  /* A tab nobody is looking at pauses everything (see script). */
+  :global([data-sky-paused]) .sky * {
+    animation-play-state: paused !important;
+  }
+
+  /* ---------------------------------------------------------------- night */
+
+  /* A faint violet glow at the horizon ties the sky to the accent colour. */
+  .sky__nebula {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse 90% 45% at 50% 108%,
+        rgb(124 58 237 / 0.26),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 50% 35% at 12% 92%,
+        rgb(91 47 208 / 0.14),
+        transparent 70%
+      );
+  }
+
+  /* One element per layer; its box-shadow carries every dot. */
+  .stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    inline-size: var(--size);
+    block-size: var(--size);
+    border-radius: 50%;
+    opacity: 0.85;
+    will-change: opacity;
+    animation: twinkle var(--dur) ease-in-out var(--delay) infinite alternate;
+  }
+
+  /* Individually animated stars: the sparkle. */
+  .star {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: var(--size);
+    block-size: var(--size);
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow:
+      0 0 6px 1px rgb(255 255 255 / 0.7),
+      0 0 16px 3px rgb(179 157 255 / 0.35);
+    opacity: 0.9;
+    animation: twinkle-bright var(--dur) ease-in-out var(--delay) infinite alternate;
+  }
+
+  /* A streak: a gradient bar, head at the left, flying down-left. Visible for
+     the first ~10% of a long cycle, so they read as occasional, not looping. */
+  .meteor {
+    --travel: 42vmax;
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: var(--len);
+    block-size: 2px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      #fff,
+      rgb(203 188 255 / 0.55) 35%,
+      transparent
+    );
+    box-shadow: 0 0 8px 1px rgb(255 255 255 / 0.35);
+    rotate: -30deg;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: meteor var(--dur) linear var(--delay) infinite;
+  }
+
+  /* ------------------------------------------------------------------ day */
+
+  /* A warm glow bleeding in from the top-right corner. No hard disc: it is
+     light in the air, not a drawing of a sun. */
+  .sun {
+    position: absolute;
+    inset-block-start: -22vmax;
+    inset-inline-end: -20vmax;
+    inline-size: 66vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgb(255 248 230 / 1) 0,
+      rgb(255 232 200 / 0.85) 10%,
+      rgb(255 206 186 / 0.5) 28%,
+      rgb(255 188 200 / 0.2) 50%,
+      transparent 70%
+    );
+    will-change: opacity, transform;
+    animation: sun-breathe 11s ease-in-out infinite alternate;
+  }
+
+  /* One blob cluster per element: several soft ellipses plus a faint
+     lavender underside, blurred ONCE (static filter) and then only translated
+     across the sky, so the drift is compositor-only. */
+  .cloud {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: max(var(--w), 15rem);
+    aspect-ratio: 3.4 / 1;
+    opacity: var(--op);
+    filter: blur(var(--blur));
+    background:
+      radial-gradient(ellipse 22% 48% at 20% 66%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 24% 74% at 40% 44%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 26% 60% at 62% 56%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 19% 46% at 82% 68%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 46% 26% at 50% 82%, rgb(196 188 245 / 0.55) 0, rgb(196 188 245 / 0) 100%);
+    will-change: transform;
+    animation: cloud-drift var(--dur) linear var(--delay) infinite;
+  }
+
+  .mote {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: var(--size);
+    block-size: var(--size);
+    border-radius: 50%;
+    background-color: var(--tint);
+    box-shadow: 0 0 8px 2px var(--tint);
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: mote-rise var(--dur) ease-in-out var(--delay) infinite;
+  }
+
+  @keyframes sun-breathe {
+    from {
+      opacity: 0.82;
+      transform: scale(1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+  /* -100% is the cloud's own width, so it starts fully off the left edge;
+     --x is subtracted so the result does not depend on where it rests. */
+  @keyframes cloud-drift {
+    from {
+      transform: translateX(calc(-100% - var(--x)));
+    }
+    to {
+      transform: translateX(calc(100vw - var(--x)));
+    }
+  }
+  @keyframes mote-rise {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+    }
+    18% {
+      opacity: 0.85;
+    }
+    70% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--drift), calc(var(--rise) * -1), 0);
+    }
+  }
+
+  @keyframes twinkle {
+    from {
+      opacity: 0.45;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes twinkle-bright {
+    from {
+      opacity: 0.35;
+      transform: scale(0.75);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1.25);
+    }
+  }
+  @keyframes meteor {
+    0% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    1.5% {
+      opacity: 1;
+    }
+    7% {
+      opacity: 1;
+    }
+    10%,
+    100% {
+      opacity: 0;
+      transform: translateX(calc(var(--travel) * -1));
+    }
+  }
+
+  /* ---------------------------------------------------------------- mobile
+     Fewer layers, fewer sparkles, fewer meteors. */
+  @media (width < 48rem) {
+    .stars--a2,
+    .stars--b2,
+    .star--extra,
+    .meteor--extra,
+    .cloud--extra,
+    .mote--extra {
+      display: none;
+    }
+    .meteor {
+      --travel: 60vmax;
+    }
+    /* A smaller blur radius is much cheaper to raster on a phone GPU. */
+    .cloud {
+      filter: blur(calc(var(--blur) * 0.55));
+    }
+  }
+
+  /* ---------------------------------------------------------- reduced motion
+     Explicit, not the global 0.01ms hack: that would still flash a meteor once.
+     Stars stay (static); anything that travels is removed. */
+  @media (prefers-reduced-motion: reduce) {
+    .stars,
+    .star {
+      animation: none;
+      opacity: 0.85;
+      transform: none;
+    }
+    .sun,
+    .cloud {
+      animation: none;
+      transform: none;
+    }
+    .meteor,
+    .mote {
+      display: none;
+    }
+    /* The theme swap is an instant cut, not a sunrise. */
+    .sky__night,
+    .day__fx,
+    .night__sky,
+    .night__stars,
+    .night__meteors,
+    .day__sun,
+    .day__clouds,
+    .day__motes {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Pause every sky animation while the tab is hidden.
+  const root = document.documentElement;
+  const sync = () => root.toggleAttribute('data-sky-paused', document.hidden);
+  document.addEventListener('visibilitychange', sync);
+  sync();
+</script>

@@ -11,10 +11,16 @@
         by script when (2) is unsupported, so the two never double up.
    ========================================================================= */
 
+/* --reveal-x is optional and defaults to 0, so everything that only sets
+   --reveal-shift behaves exactly as before. The timeline sets it per side so
+   cards slide in from the side they sit on. */
 @keyframes reveal-in {
   from {
     opacity: 0;
-    transform: translateY(var(--reveal-shift, 1.25rem));
+    transform: translate(
+      var(--reveal-x, 0),
+      var(--reveal-shift, 1.25rem)
+    );
   }
   to {
     opacity: 1;
@@ -64,7 +70,7 @@
      a class the script only adds when path 1 is unavailable. --- */
   html.js-reveal [data-reveal] {
     opacity: 0;
-    transform: translateY(var(--reveal-shift, 1.25rem));
+    transform: translate(var(--reveal-x, 0), var(--reveal-shift, 1.25rem));
     transition:
       opacity var(--dur-slow) var(--ease-out),
       transform var(--dur-slow) var(--ease-out);
@@ -99,26 +105,6 @@
   animation-timing-function: var(--ease-out);
 }
 
-/* --- Theme wipe: a circular reveal originating at the toggle. --- */
-html.theme-wiping::view-transition-old(root) {
-  animation: none;
-}
-html.theme-wiping::view-transition-new(root) {
-  animation: theme-wipe 520ms var(--ease-out);
-  /* Outgoing frame must not blend through the incoming one, or the wipe
-     reads as a muddy cross-fade instead of a clean edge. */
-  mix-blend-mode: normal;
-}
-html.theme-wiping::view-transition-old(root),
-html.theme-wiping::view-transition-new(root) {
-  mix-blend-mode: normal;
-}
-
-@keyframes theme-wipe {
-  from {
-    clip-path: circle(0 at var(--wipe-x, 50%) var(--wipe-y, 0));
-  }
-  to {
-    clip-path: circle(150vmax at var(--wipe-x, 50%) var(--wipe-y, 0));
-  }
-}
+/* The theme change itself is NOT a view transition: a snapshot would freeze
+   the animated sky mid-flight. The sky and colours transition in CSS instead
+   (see Sky.astro and the --dur-theme tokens). */
