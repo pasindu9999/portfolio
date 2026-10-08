@@ -11,10 +11,16 @@
         by script when (2) is unsupported, so the two never double up.
    ========================================================================= */
 
+/* --reveal-x is optional and defaults to 0, so everything that only sets
+   --reveal-shift behaves exactly as before. The timeline sets it per side so
+   cards slide in from the side they sit on. */
 @keyframes reveal-in {
   from {
     opacity: 0;
-    transform: translateY(var(--reveal-shift, 1.25rem));
+    transform: translate(
+      var(--reveal-x, 0),
+      var(--reveal-shift, 1.25rem)
+    );
   }
   to {
     opacity: 1;
@@ -64,7 +70,7 @@
      a class the script only adds when path 1 is unavailable. --- */
   html.js-reveal [data-reveal] {
     opacity: 0;
-    transform: translateY(var(--reveal-shift, 1.25rem));
+    transform: translate(var(--reveal-x, 0), var(--reveal-shift, 1.25rem));
     transition:
       opacity var(--dur-slow) var(--ease-out),
       transform var(--dur-slow) var(--ease-out);

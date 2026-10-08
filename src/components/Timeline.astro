@@ -4,6 +4,11 @@
  * chronological vertical timeline. Signature #1 (ledger) and #2 (marginalia)
  * are the site's established identity; this is a third: a single accent
  * line with small node markers, work solid and education outlined.
+ *
+ * From 48rem up the line runs down the CENTRE and entries alternate sides --
+ * newest on the left. Side is derived from the index, so a new entry keeps the
+ * zig-zag going with no markup change. Below 48rem it collapses to the original
+ * single column with the line on the left.
  */
 import { EXPERIENCE, EDUCATION } from '../data/site';
 
@@ -17,36 +22,38 @@ const entries: (Entry & { kind: 'work' | 'education' })[] = [
 
 <ol class="timeline" data-draw>
   {
-    entries.map((entry) => (
-      <li class="timeline__entry" data-reveal>
+    entries.map((entry, i) => (
+      <li class="timeline__item" data-side={i % 2 === 0 ? 'left' : 'right'}>
         <span
           class="timeline__node"
           data-kind={entry.kind}
           aria-hidden="true"
         />
-        <div class="timeline__meta">
-          <p class="timeline__period">{entry.period}</p>
-          <span class="timeline__badge" data-current={entry.duration === 'Current'}>
-            {entry.duration}
-          </span>
-          <span class="timeline__badge">
-            {entry.kind === 'work' ? 'Work' : 'Education'}
-          </span>
-        </div>
-        <h3 class="timeline__title">{entry.title}</h3>
-        <p class="timeline__org">{entry.org}</p>
-        {entry.highlights.length > 0 && (
-          <ul class="timeline__highlights">
-            {entry.highlights.map((h) => (
-              <li>{h}</li>
+        <div class="timeline__entry" data-reveal>
+          <div class="timeline__meta">
+            <p class="timeline__period">{entry.period}</p>
+            <span class="timeline__badge" data-current={entry.duration === 'Current'}>
+              {entry.duration}
+            </span>
+            <span class="timeline__badge">
+              {entry.kind === 'work' ? 'Work' : 'Education'}
+            </span>
+          </div>
+          <h3 class="timeline__title">{entry.title}</h3>
+          <p class="timeline__org">{entry.org}</p>
+          {entry.highlights.length > 0 && (
+            <ul class="timeline__highlights">
+              {entry.highlights.map((h) => (
+                <li>{h}</li>
+              ))}
+            </ul>
+          )}
+          <ul class="timeline__tags" aria-label="Tags">
+            {entry.tags.slice(0, 3).map((t) => (
+              <li>{t}</li>
             ))}
           </ul>
-        )}
-        <ul class="timeline__tags" aria-label="Tags">
-          {entry.tags.slice(0, 3).map((t) => (
-            <li>{t}</li>
-          ))}
-        </ul>
+        </div>
       </li>
     ))
   }
@@ -71,6 +78,13 @@ const entries: (Entry & { kind: 'work' | 'education' })[] = [
     inline-size: 1px;
     background-color: var(--accent);
     transform-origin: top;
+  }
+
+  /* One row per entry. Below 48rem it is a plain block and the node hangs off
+     its left edge, exactly as before; from 48rem up it becomes a 3-column grid
+     (see the media query at the end of this block). */
+  .timeline__item {
+    position: relative;
   }
 
   /* Each entry is a glass card: the text has to read over a moving sky. */
@@ -179,5 +193,102 @@ const entries: (Entry & { kind: 'work' | 'education' })[] = [
     border: 1px solid var(--rule);
     border-radius: var(--radius-pill);
     padding: 2px var(--space-xs);
+  }
+
+  /* ------------------------------------------------------------ 48rem and up
+     Centre line, alternating sides. Only POSITION changes here: colours, glass,
+     radius, shadow, badges and chips are untouched. */
+  @media (width >= 48rem) {
+    .timeline {
+      /* The line is centred on the content box, so side padding must be
+         symmetric. The margin/padding pair keeps the cards where they were
+         while giving overflow-x: clip a boundary out at the page gutter -- the
+         slide-in below starts a little outside the resting position and must
+         not be able to create a horizontal scrollbar. */
+      padding-inline: var(--gutter);
+      margin-inline: calc(var(--gutter) * -1);
+      overflow-x: clip;
+    }
+
+    /* The line: dead centre, from the first node down to the end of the last
+       card. (The original had no fade or gradient on it, so none is added;
+       [data-draw] still draws it in on scroll.) */
+    .timeline::before {
+      inset-inline-start: 50%;
+      translate: -50% 0;
+      inset-block: calc(var(--space-s) + 0.35em + 5px) 0;
+    }
+
+    /* 1fr | node column | 1fr. The 5rem middle column puts each card 2.5rem
+       from the line, and leaves each card just under half the container. */
+    .timeline__item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 5rem minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .timeline__node {
+      position: relative;
+      inset: auto;
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: center;
+      /* Same offset the node always had from the top of its card. */
+      margin-block-start: calc(var(--space-s) + 0.35em);
+      z-index: 1;
+    }
+
+    .timeline__entry {
+      grid-row: 1;
+    }
+    .timeline__item[data-side='left'] .timeline__entry {
+      grid-column: 1;
+    }
+    .timeline__item[data-side='right'] .timeline__entry {
+      grid-column: 3;
+    }
+
+    /* A short, subtle connector from the card's edge to its node, in the
+       timeline's own line colour. It reaches the node's edge (5.5px radius). */
+    .timeline__entry::before {
+      content: '';
+      position: absolute;
+      inset-block-start: calc(var(--space-s) + 0.35em + 5px);
+      inline-size: calc(2.5rem - 5px);
+      block-size: 1px;
+      background-color: var(--accent);
+      opacity: 0.55;
+    }
+    .timeline__item[data-side='left'] .timeline__entry::before {
+      inset-inline-end: calc((2.5rem - 5px) * -1);
+    }
+    .timeline__item[data-side='right'] .timeline__entry::before {
+      inset-inline-start: calc((2.5rem - 5px) * -1);
+    }
+
+    /* Left cards hug the centre line: header block and chips right-aligned.
+       The bullet list is deliberately left alone -- it stays left-aligned with
+       its marker at the start of each line. */
+    .timeline__item[data-side='left'] .timeline__meta,
+    .timeline__item[data-side='left'] .timeline__tags {
+      justify-content: flex-end;
+    }
+    .timeline__item[data-side='left'] .timeline__title,
+    .timeline__item[data-side='left'] .timeline__org {
+      text-align: end;
+    }
+
+    /* Entrance direction follows the side: left cards slide in from the left,
+       right cards from the right. These feed the shared reveal in motion.css
+       (scroll-driven, and the IntersectionObserver fallback). Opacity still
+       fades; the old upward slide is replaced by the sideways one. */
+    .timeline__item[data-side='left'] .timeline__entry {
+      --reveal-x: -1.75rem;
+      --reveal-shift: 0rem;
+    }
+    .timeline__item[data-side='right'] .timeline__entry {
+      --reveal-x: 1.75rem;
+      --reveal-shift: 0rem;
+    }
   }
 </style>
