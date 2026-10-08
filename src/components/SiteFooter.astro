@@ -1,89 +1,186 @@
 ---
 import { SITE } from '../data/site';
+import Icon from './Icon.astro';
 // The original hardcoded "2023" (with a malformed &#169 entity). Both fixed.
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <div class="site-footer__brand">
-      <p class="eyebrow">{SITE.role}</p>
-      <p class="site-footer__name">{SITE.name}</p>
+    <div class="site-footer__main">
+      <div class="site-footer__brand">
+        <p class="eyebrow">{SITE.role}</p>
+        <p class="site-footer__name">{SITE.name}</p>
+      </div>
+
+      <nav class="site-footer__nav" aria-label="Footer">
+        <ul>
+          <li><a href="/#work">Work</a></li>
+          <li><a href="/#colophon">About</a></li>
+          <li><a href="/writing">Writing</a></li>
+          <li><a href="/#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <nav class="site-footer__social" aria-label="Social links">
+        <ul>
+          <li>
+            <a href={`mailto:${SITE.email}`} aria-label="Email">
+              <Icon name="mail" />
+            </a>
+          </li>
+          <li>
+            <a
+              href={SITE.github}
+              rel="noopener noreferrer"
+              target="_blank"
+              aria-label="GitHub (opens in a new tab)"
+            >
+              <Icon name="github" />
+            </a>
+          </li>
+          <li>
+            <a
+              href={SITE.linkedin}
+              rel="noopener noreferrer"
+              target="_blank"
+              aria-label="LinkedIn (opens in a new tab)"
+            >
+              <Icon name="linkedin" />
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
 
-    <nav aria-label="Footer">
-      <ul>
-        <li><a href="/#work">Work</a></li>
-        <li><a href="/#colophon">About</a></li>
-        <li><a href="/writing">Writing</a></li>
-        <li><a href="/#contact">Contact</a></li>
-        <li><a href={`mailto:${SITE.email}`}>Email</a></li>
-        <li>
-          <a href={SITE.github} rel="noopener noreferrer" target="_blank">
-            GitHub<span class="sr-only"> (opens in a new tab)</span>
-          </a>
-        </li>
-        <li>
-          <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
-            LinkedIn<span class="sr-only"> (opens in a new tab)</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <p class="site-footer__legal mono">
-      &copy; {year} {SITE.name}. All rights reserved.
+    <div class="site-footer__bar">
+      <p class="site-footer__legal mono">
+        &copy; {year} {SITE.name}. All rights reserved.
+      </p>
       <!-- Only shown once someone has picked a theme by hand: the single
            sun/moon button has no "system" position, so this is the way back. -->
       <button
-        class="site-footer__reset"
+        class="site-footer__reset mono"
         id="theme-reset"
         type="button"
         hidden
       >
         Use system theme
       </button>
-    </p>
+    </div>
   </div>
 </footer>
 
 <style>
+  /* Only block padding here: the inline padding on a wide screen comes from
+     the shared `body > footer` rule in layout.css (it reserves the marginalia
+     rail), and the same rule pads <main>, so footer and sections line up. */
   .site-footer {
     border-block-start: 1px solid var(--rule);
-    padding: var(--space-xl) var(--gutter) var(--space-l);
+    padding-block: var(--space-xl) var(--space-l);
     margin-block-start: var(--space-3xl);
   }
+  /* Same box as .wrap in index.astro, so the footer shares the contact cards'
+     left and right edges exactly. */
   .site-footer__inner {
     max-inline-size: 78rem;
     margin-inline: auto;
+    padding-inline: var(--gutter);
     display: grid;
     gap: var(--space-m);
   }
-  @media (width >= 48rem) {
-    .site-footer__inner {
-      grid-template-columns: 1fr auto;
-      align-items: start;
-    }
-    .site-footer__legal { grid-column: 1 / -1; }
+
+  .site-footer__main {
+    display: grid;
+    gap: var(--space-m);
+    justify-items: start;
   }
+  @media (width >= 48rem) {
+    .site-footer__main {
+      /* Equal outer tracks keep the nav centred on the container; the
+         max-content floor stops the name wrapping when space is tight (the
+         nav then sits a little off-centre, which nobody can see at 768). */
+      grid-template-columns:
+        minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+      column-gap: var(--space-s);
+      align-items: center;
+    }
+    .site-footer__social {
+      justify-self: end;
+    }
+  }
+
   .site-footer__name {
     font-family: var(--font-display);
     font-size: var(--step-2);
     letter-spacing: -0.03em;
   }
-  .site-footer nav ul {
+
+  .site-footer ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-s);
     list-style: none;
+    padding: 0;
+  }
+  .site-footer__nav ul {
+    gap: var(--space-xs) var(--space-s);
     font-family: var(--font-mono);
     font-size: var(--step--1);
   }
-  .site-footer__legal { color: var(--ink-subtle); font-size: var(--step--2); }
+  @media (width >= 48rem) {
+    .site-footer__nav ul {
+      justify-content: center;
+    }
+  }
+
+  /* Icon links: a 2.75rem (44px) target around a 1.25rem glyph. */
+  .site-footer__social ul {
+    gap: var(--space-3xs);
+    /* Pull the first icon's padding out so the glyphs, not the tap targets,
+       sit on the container's left edge when the row is stacked. */
+    margin-inline-start: -0.75rem;
+  }
+  @media (width >= 48rem) {
+    .site-footer__social ul {
+      margin-inline: 0 -0.75rem;
+    }
+  }
+  .site-footer__social a {
+    display: grid;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: var(--radius-pill);
+    color: var(--ink-muted);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+  .site-footer__social a:hover {
+    color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .site-footer__social a:focus-visible {
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+  }
+
+  .site-footer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs) var(--space-s);
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--rule);
+  }
+  .site-footer__legal {
+    color: var(--ink-subtle);
+    font-size: var(--step--2);
+  }
   .site-footer__reset {
-    margin-inline-start: var(--space-s);
     padding: 0;
-    font: inherit;
+    font-size: var(--step--2);
     color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 0.22em;

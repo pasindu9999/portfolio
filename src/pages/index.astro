@@ -10,9 +10,10 @@ import ProjectCard from '../components/ProjectCard.astro';
 import SkillCard from '../components/SkillCard.astro';
 import Timeline from '../components/Timeline.astro';
 import ContactLedger from '../components/ContactLedger.astro';
-import portrait from '../assets/portrait-about.jpeg';
+import ContactAvailability from '../components/ContactAvailability.astro';
+import Icon from '../components/Icon.astro';
 import { PROJECT_CATEGORY } from '../content.config';
-import { SITE, BIO, SKILLS, SKILL_CATEGORIES } from '../data/site';
+import { SITE, SKILLS, SKILL_CATEGORIES } from '../data/site';
 
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
@@ -24,13 +25,38 @@ const year = new Date().getFullYear();
 const presentCategories = new Set(projects.map((p) => p.data.category));
 const workCategories = PROJECT_CATEGORY.filter((c) => presentCategories.has(c));
 
+// All copy for the About section lives here.
+const ABOUT = {
+  heading: 'Engineer, end to end.',
+  intro:
+    'Software engineer with three years of full-stack experience delivering enterprise web applications across the .NET and TypeScript ecosystems, with recent hands-on specialisation in applied GenAI and LLM engineering.',
+  note: 'I modernise long-lived systems without breaking what already works, and build new platform layers where the interesting problems are access control, data contracts and test coverage. The GenAI work is the same instinct pointed at a newer problem: measure first, then decide what to change.',
+  highlights: [
+    {
+      icon: 'code',
+      title: 'Full-Stack Engineering',
+      text: 'Building enterprise web applications across .NET and TypeScript, from legacy modernisation to greenfield platforms.',
+    },
+    {
+      icon: 'sparkles',
+      title: 'GenAI & LLM Engineering',
+      text: 'Applied RAG, parameter-efficient fine-tuning and multi-agent systems, measured before changed.',
+    },
+    {
+      icon: 'database',
+      title: 'API & Data Architecture',
+      text: 'Relational data design, API contracts and access control backed by solid test coverage.',
+    },
+  ],
+} as const;
+
 const SECTIONS = [
   { id: 'index', label: 'Index' },
+  { id: 'colophon', label: 'About' },
   { id: 'work', label: 'Work' },
   { id: 'selected', label: 'Selected' },
   { id: 'skills', label: 'Skills' },
   { id: 'timeline', label: 'Timeline' },
-  { id: 'colophon', label: 'Colophon' },
   { id: 'contact', label: 'Contact' },
 ];
 ---
@@ -56,7 +82,7 @@ const SECTIONS = [
       <p class="hero__lede">{SITE.description}</p>
 
       <ul class="hero__facts" aria-label="At a glance">
-        <li class="pill">Full-stack &middot; applied GenAI</li>
+        <li class="pill">Full-stack</li>
         <li class="pill">{SITE.location}</li>
         <li class="pill hero__status">Open to roles</li>
       </ul>
@@ -75,10 +101,46 @@ const SECTIONS = [
     </a>
   </section>
 
-  <!-- ============ 02 WORK — the filterable gallery ============ -->
+  <!-- ============ 02 ABOUT (id stays "colophon": header/footer link to it) ============ -->
+  <section id="colophon" class="section-block wrap">
+    <header class="section-head">
+      <p class="eyebrow">02 / About</p>
+      <h2>About <span>Me</span></h2>
+    </header>
+
+    <div class="about">
+      <div class="about__intro">
+        <h3>{ABOUT.heading}</h3>
+        <p>{ABOUT.intro}</p>
+        <p class="about__note">{ABOUT.note}</p>
+        <div class="about__cta">
+          <a class="btn btn--fill" href="#contact">Get In Touch</a>
+          <a class="btn" href="/cv.pdf" download>Download CV</a>
+        </div>
+      </div>
+
+      <ul class="about__cards" aria-label="Areas of focus">
+        {
+          ABOUT.highlights.map((item) => (
+            <li class="about__card glass">
+              <span class="about__icon">
+                <Icon name={item.icon} size="1.5rem" />
+              </span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 03 WORK — the filterable gallery ============ -->
   <section id="work" class="section-block wrap">
     <header class="section-head">
-      <p class="eyebrow">02 / Work</p>
+      <p class="eyebrow">03 / Work</p>
       <h2>Selected <span>Work</span></h2>
     </header>
     <FilterGroup
@@ -96,7 +158,7 @@ const SECTIONS = [
     </FilterGroup>
   </section>
 
-  <!-- ============ 03 SELECTED — the deliberate grid break ============ -->
+  <!-- ============ 04 SELECTED — the deliberate grid break ============ -->
   {
     selected && selected.data.cover && (
       <section id="selected" class="selected">
@@ -112,7 +174,7 @@ const SECTIONS = [
         </div>
 
         <div class="selected__body" data-reveal>
-          <p class="eyebrow">03 / In focus</p>
+          <p class="eyebrow">04 / In focus</p>
           <h2 class="selected__title">{selected.data.title}</h2>
           <p class="measure">{selected.data.blurb}</p>
           <dl class="spec">
@@ -143,10 +205,10 @@ const SECTIONS = [
     )
   }
 
-  <!-- ============ 04 SKILLS — filterable, tag-field cards ============ -->
+  <!-- ============ 05 SKILLS — filterable, tag-field cards ============ -->
   <section id="skills" class="section-block wrap">
     <header class="section-head">
-      <p class="eyebrow">04 / Skills</p>
+      <p class="eyebrow">05 / Skills</p>
       <h2>My <span>Toolkit</span></h2>
     </header>
     <FilterGroup
@@ -168,55 +230,13 @@ const SECTIONS = [
     </FilterGroup>
   </section>
 
-  <!-- ============ 05 TIMELINE — experience + education, merged ============ -->
+  <!-- ============ 06 TIMELINE — experience + education, merged ============ -->
   <section id="timeline" class="section-block wrap">
     <header class="section-head">
-      <p class="eyebrow">05 / Experience</p>
+      <p class="eyebrow">06 / Experience</p>
       <h2>Career <span>Timeline</span></h2>
     </header>
     <Timeline />
-  </section>
-
-  <!-- ============ 06 COLOPHON ============ -->
-  <section id="colophon" class="section-block wrap">
-    <header class="section-head">
-      <p class="eyebrow">06 / About</p>
-      <h2>About <span>Me</span></h2>
-    </header>
-
-    <div class="colophon">
-      <div class="colophon__portrait">
-        <div class="portrait__frame">
-          <div class="portrait__media">
-            <Picture
-              src={portrait}
-              alt={SITE.name}
-              formats={['avif', 'webp']}
-              widths={[240, 320, 480, 640]}
-              sizes="(min-width: 48rem) 300px, 240px"
-              loading="lazy"
-            />
-          </div>
-        </div>
-        {/* Decorative: the facts are already in the copy beside the photo. */}
-        <span class="portrait__chip portrait__chip--exp" aria-hidden="true">3 yrs</span>
-        <span class="portrait__chip portrait__chip--stack" aria-hidden="true">.NET · TypeScript</span>
-        <span class="portrait__chip portrait__chip--ai" aria-hidden="true">GenAI</span>
-      </div>
-      <div class="colophon__copy">
-        <h3>Engineer, end to end.</h3>
-        <p class="measure">{BIO}</p>
-        <p class="colophon__note measure">
-          In practice that has meant two things at once: moving long-lived
-          enterprise systems onto modern architecture without breaking what
-          already works, and building new platform layers where the interesting
-          problems are access control, data contracts and test coverage rather
-          than screens. The GenAI work is the same instinct pointed at a newer
-          problem — measure first, then decide what to change.
-        </p>
-        <a class="btn btn--fill" href="/cv.pdf">Download CV</a>
-      </div>
-    </div>
   </section>
 
   <!-- ============ 07 CONTACT ============ -->
@@ -227,12 +247,15 @@ const SECTIONS = [
     </header>
 
     <p class="contact__statement">
-      Let’s build something that
-      <span class="contact__accent">actually ships.</span>
+      {/* Astro trims the whitespace before an element, so the space is explicit. */}
+      Let’s build something that{' '}<span class="contact__accent">actually ships.</span>
     </p>
 
     <div class="contact">
-      <ContactLedger />
+      <div class="contact__aside">
+        <ContactLedger />
+        <ContactAvailability />
+      </div>
 
       {/*
         Netlify Forms: this must stay static markup. Netlify's build-time bot
@@ -508,178 +531,93 @@ const SECTIONS = [
     }
   }
 
-  /* ---------- Colophon ---------- */
-  .colophon {
+  /* ---------- About ---------- */
+  .about {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--space-l);
+    align-items: center;
     margin-block-start: var(--space-l);
   }
-  /* Photo left, copy right from 768px; stacked and centred below that. */
+  /* Intro left, cards right from 768px; one column (intro first) below. */
   @media (width >= 48rem) {
-    .colophon {
-      grid-template-columns: 20rem minmax(0, 1fr);
+    .about {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-xl);
-      align-items: start;
     }
   }
 
-  /* ---- Portrait: an arch of glass around a tinted photo, with floating chips.
-     The wrapper is the positioning context for the chips, so it must NOT clip
-     (the chips deliberately hang over the frame's edge). */
-  .colophon__portrait {
-    --portrait-bleed: 14px; /* how far the chips overhang the frame */
-    position: relative;
-    inline-size: min(100%, 240px);
-    justify-self: center;
-  }
-  @media (width >= 48rem) {
-    .colophon__portrait {
-      --portrait-bleed: 22px;
-      inline-size: min(100%, 300px);
-    }
-  }
-
-  /* Same glass recipe as the cards. Arch: a semicircular top and 28px bottom
-     corners. Written as 50% / 40% rather than 999px: with 999px on every
-     corner the browser scales ALL radii down to fit the width, which would
-     shrink the 28px bottom corners to about 4px. 50% horizontal and 40%
-     vertical of a 4:5 box is exactly a semicircle. */
-  .portrait__frame {
-    padding: 6px;
-    background-color: var(--glass);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    border-radius: 50% 50% 28px 28px / 40% 40% 28px 28px;
-    box-shadow:
-      var(--elevation),
-      0 14px 44px -14px color-mix(in srgb, var(--accent-fill) 38%, transparent);
-  }
-
-  /* Concentric with the frame: same shape, 6px (the padding) smaller. */
-  .portrait__media {
-    --tint-purple: 30%;
-    --tint-blue: 12%;
-    position: relative;
-    isolation: isolate; /* so the soft-light overlay blends with the photo only */
-    overflow: hidden;
-    aspect-ratio: 4 / 5;
-    border-radius: 50% 50% 22px 22px / 40% 40% 22px 22px;
-    /* base.css gives every <img> the theme's image filter; the photo sets its
-       own grading below, so the theme filter moves up to this wrapper. */
-    filter: var(--img-filter);
-  }
-  :global([data-theme='dark']) .portrait__media {
-    --tint-purple: 36%;
-    --tint-blue: 15%;
-  }
-  .portrait__media :global(picture) {
-    display: block;
-    block-size: 100%;
-  }
-  .portrait__media :global(img) {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    object-position: 48% 20%;
-    /* The source photo is nearly square, so in a 4:5 frame it already fills
-       the full height and object-position's vertical value has nothing to
-       move. A modest zoom toward the face is what tightens the crop. */
-    scale: 1.2;
-    transform-origin: 50% 32%;
-    filter: saturate(0.85) contrast(1.05);
-  }
-  /* Tints the warm greens and golds toward the theme's purple/blue. */
-  .portrait__media::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    mix-blend-mode: soft-light;
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--accent-fill) var(--tint-purple), transparent),
-      color-mix(in srgb, var(--day-blue) var(--tint-blue), transparent)
-    );
-  }
-
-  /* Floating glass chips, in the cards' recipe. Text uses --ink, not the muted
-     tone: they sit over the photo's edge, where the backdrop varies. */
-  .portrait__chip {
-    position: absolute;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-    padding: 0.35em 0.95em;
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    letter-spacing: 0.04em;
-    color: var(--ink);
-    background-color: var(--glass);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-pill);
-    box-shadow: var(--elevation);
-  }
-  .portrait__chip--exp {
-    top: 14%;
-    right: calc(var(--portrait-bleed) * -1);
-  }
-  .portrait__chip--stack {
-    top: 62%;
-    left: calc(var(--portrait-bleed) * -1);
-  }
-  .portrait__chip--ai {
-    bottom: 7%;
-    right: calc(var(--portrait-bleed) * -1);
-  }
-
-  /* Slow drift, out of step with each other. Reduced motion: none at all, so
-     the chips just sit still. Pauses with the sky when the tab is hidden. */
-  @media (prefers-reduced-motion: no-preference) {
-    .portrait__chip {
-      animation: chip-float var(--float-dur) ease-in-out var(--float-delay)
-        infinite alternate;
-      will-change: transform;
-    }
-    .portrait__chip--exp { --float-dur: 5.4s; --float-delay: -1.2s; }
-    .portrait__chip--stack { --float-dur: 6.6s; --float-delay: -3.4s; }
-    .portrait__chip--ai { --float-dur: 6s; --float-delay: -0.4s; }
-    :global([data-sky-paused]) .portrait__chip {
-      animation-play-state: paused;
-    }
-  }
-  @keyframes chip-float {
-    from {
-      transform: translateY(-6px);
-    }
-    to {
-      transform: translateY(6px);
-    }
-  }
-  .colophon__copy {
+  .about__intro {
     display: grid;
     gap: var(--space-s);
-    align-content: start;
-    max-inline-size: var(--measure);
+    justify-items: start;
   }
-  .colophon__copy h3 {
+  .about__intro h3 {
     font-size: var(--step-3);
     letter-spacing: -0.035em;
   }
-  /* Text polish: smaller and a narrower measure, so the section is less
-     text-heavy. Was font-size: var(--step-1) (1.2-1.56rem) at up to 68ch.
-     To revert, restore those two values. */
-  .colophon__copy p {
+  .about__intro p {
     font-size: clamp(1.05rem, 1rem + 0.2vw, 1.15rem);
     line-height: 1.5;
     max-inline-size: 62ch;
   }
-  .colophon__note {
+  .about__note {
+    color: var(--ink-muted);
+  }
+  .about__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .about__cards {
+    display: grid;
+    gap: var(--space-s);
+    padding: 0;
+    list-style: none;
+  }
+  /* Surface (border, radius, glass) comes from the shared .glass. */
+  .about__card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-s);
+    padding: var(--space-s);
+    border-radius: 0.75rem;
+  }
+  .about__card:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: var(--elevation-hover);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .about__card {
+      transition:
+        transform var(--dur) var(--ease-out),
+        border-color var(--dur) var(--ease-out),
+        box-shadow var(--dur) var(--ease-out);
+    }
+    .about__card:hover {
+      transform: translateY(-3px);
+    }
+  }
+  .about__icon {
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    border-radius: 50%;
+    color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .about__card h3 {
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .about__card p {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--step--1);
+    line-height: 1.5;
     color: var(--ink-muted);
   }
 
@@ -707,8 +645,20 @@ const SECTIONS = [
     .contact {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-2xl);
-      align-items: start;
+      /* Stretch (not start) so the aside column ends level with the form. */
+      align-items: stretch;
     }
+  }
+
+  /* Left column: info card, then the availability card, which grows to take
+     whatever height the form leaves -- no fixed heights. */
+  .contact__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+  .contact__aside > :global(:last-child) {
+    flex: 1;
   }
 
   .contact__form {

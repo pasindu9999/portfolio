@@ -1,8 +1,9 @@
 ---
 /**
- * A ledger-style key-value card for the contact section's left column --
- * same look as the masthead rail (ROLE/FOCUS/BASED/STATUS): thin border,
- * mono uppercase labels.
+ * The contact section's left-column info card: one icon tile + value per row,
+ * on the same glass surface as the rest of the section. The icon replaces the
+ * old mono text label; the label survives as visually hidden text so each row
+ * keeps its accessible name.
  *
  * This used to also offer a copy-to-clipboard button next to the email,
  * revealed by a small scoped script. It now lives on the homepage, which
@@ -10,39 +11,54 @@
  * does the job.
  */
 import { SITE } from '../data/site';
+import Icon from './Icon.astro';
+
+// Display forms. The full URLs stay in the hrefs; these just keep the mono
+// values short enough not to touch the card edge on narrow screens.
+const linkedinLabel = SITE.linkedin.replace(
+  /^https?:\/\/(www\.)?linkedin\.com\//,
+  '',
+);
+const githubLabel = SITE.github.replace(/^https?:\/\//, '');
 ---
 
 <div class="contact-ledger glass">
   <dl>
     <div>
-      <dt>Email</dt>
+      <dt>
+        <span class="contact-ledger__tile"><Icon name="mail" /></span>
+        <span class="sr-only">Email</span>
+      </dt>
       <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
     </div>
     <div>
-      <dt>LinkedIn</dt>
+      <dt>
+        <span class="contact-ledger__tile"><Icon name="linkedin" /></span>
+        <span class="sr-only">LinkedIn</span>
+      </dt>
       <dd>
         <a href={SITE.linkedin} rel="noopener noreferrer" target="_blank">
-          {SITE.linkedin.replace(/^https?:\/\//, '')}
-          <span class="sr-only"> (opens in a new tab)</span>
+          {linkedinLabel}<span class="sr-only"> (opens in a new tab)</span>
         </a>
       </dd>
     </div>
     <div>
-      <dt>GitHub</dt>
+      <dt>
+        <span class="contact-ledger__tile"><Icon name="github" /></span>
+        <span class="sr-only">GitHub</span>
+      </dt>
       <dd>
         <a href={SITE.github} rel="noopener noreferrer" target="_blank">
-          {SITE.github.replace(/^https?:\/\//, '')}
-          <span class="sr-only"> (opens in a new tab)</span>
+          {githubLabel}<span class="sr-only"> (opens in a new tab)</span>
         </a>
       </dd>
     </div>
     <div>
-      <dt>Based</dt>
+      <dt>
+        <span class="contact-ledger__tile"><Icon name="map-pin" /></span>
+        <span class="sr-only">Location</span>
+      </dt>
       <dd>{SITE.location}</dd>
-    </div>
-    <div>
-      <dt>Status</dt>
-      <dd class="contact-ledger__status">Open to roles</dd>
     </div>
   </dl>
 </div>
@@ -58,7 +74,8 @@ import { SITE } from '../data/site';
   }
   .contact-ledger dl > div {
     display: grid;
-    grid-template-columns: 6rem 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
     gap: var(--space-s);
     padding-block: var(--space-2xs);
     border-block-start: 1px solid var(--rule);
@@ -67,19 +84,31 @@ import { SITE } from '../data/site';
     border-block-start: none;
     padding-block-start: 0;
   }
-  .contact-ledger dt {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--ink-subtle);
+  .contact-ledger dl > div:last-child {
+    padding-block-end: 0;
+  }
+  /* Accent at low opacity over the glass; the icon itself is currentColor, so
+     it picks up --accent in whichever theme is active. */
+  .contact-ledger__tile {
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--radius-s);
+    color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 14%, transparent);
   }
   .contact-ledger dd {
+    min-inline-size: 0;
     font-family: var(--font-mono);
     font-size: var(--step--1);
-    word-break: break-word;
+    overflow-wrap: anywhere;
   }
-  .contact-ledger__status {
+  .contact-ledger dd a {
+    text-decoration-color: var(--rule-strong);
+  }
+  .contact-ledger dd a:hover {
     color: var(--accent);
+    text-decoration-color: var(--accent);
   }
 </style>
