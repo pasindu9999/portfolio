@@ -71,8 +71,13 @@ order: 4
 ---
 ```
 
-Covers are optional. A project without one still builds — or run
-`npm run covers` to generate a typographic card from the design tokens for it.
+Covers are optional. A project without one still builds. Projects with no UI to
+screenshot get an illustration drawn from what the project is, in the night-sky
+palette: add an entry (and a small motif function) to `scripts/make-covers.mjs`,
+run `npm run covers`, and point `cover:` at the `<slug>-cover.png` it writes.
+Give a redesigned cover a **new filename** -- the dev server caches optimised
+images for a year on a URL with no content hash, so re-using a name leaves
+browsers showing the old art until a hard refresh.
 
 `coverFit` controls how the image fills its frame. Illustrations and generated
 covers crop fine with the default `'cover'`. A **UI screenshot must use

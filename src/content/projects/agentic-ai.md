@@ -13,8 +13,8 @@ tags:
     'Gradio',
     'Weights & Biases',
   ]
-cover: '../../assets/projects/agentic-ai.png'
-coverAlt: 'Typographic cover: seven agent nodes converging on a single ensemble output.'
+cover: '../../assets/projects/agentic-ai-cover.png'
+coverAlt: 'Illustration: agent nodes in orbit around a glowing ensemble core, with the RAG, QLoRA and PyTorch model families picked out.'
 year: 2026
 role: 'Sole engineer'
 timeline: '2026'

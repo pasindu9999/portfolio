@@ -2,8 +2,8 @@
 title: 'ALE Portal'
 blurb: 'A production support portal letting users manage support services and build custom solutions, with UI and backend work aimed at faster issue resolution.'
 tags: ['Angular', '.NET Framework']
-cover: '../../assets/projects/ale-portal.png'
-coverAlt: 'Typographic cover for the ALE Portal production project.'
+cover: '../../assets/projects/ale-portal-cover.png'
+coverAlt: 'Illustration: a support portal window with service tiles, a custom solution being assembled, and time to resolve falling.'
 year: 2023
 role: 'Software Engineer'
 timeline: 'Dec 2022 – Jul 2023'
