@@ -77,6 +77,37 @@ const METEORS = [
   { x: 78, y: 40, len: 100, dur: 13, delay: 10 },
   { x: 30, y: 14, len: 120, dur: 16, delay: 6 },
 ];
+
+// ---- Day scene ------------------------------------------------------------
+// Clouds: w = width (vw), y = top (vh), dur = one full drift across the sky (s),
+// p = how far along that drift the cloud already is at page load, so the sky
+// is populated immediately instead of clouds queuing up off-screen. Bigger
+// clouds are "nearer", so they drift faster and sit a little more opaque.
+const CLOUDS = [
+  { w: 50, y: 6, dur: 105, p: 0.12, op: 0.85, blur: 14 },
+  { w: 34, y: 24, dur: 150, p: 0.46, op: 0.75, blur: 12 },
+  { w: 44, y: 44, dur: 125, p: 0.7, op: 0.8, blur: 14 },
+  { w: 30, y: 62, dur: 165, p: 0.3, op: 0.65, blur: 10 },
+  { w: 40, y: 78, dur: 135, p: 0.88, op: 0.7, blur: 13 },
+].map((c) => ({
+  ...c,
+  delay: -r2(c.dur * c.p),
+  // Where the cloud sits when it does not move (reduced motion).
+  x: Math.max(-4, r2(c.p * 100 - c.w / 2)),
+}));
+
+// Motes: pale specks that rise and fade, like pollen in sunlight.
+const MOTE_TINTS = ['#ffffff', '#ffffff', '#fff3d6', '#ffe4d1'];
+const MOTES = Array.from({ length: 18 }, () => ({
+  x: between(2, 98),
+  y: between(45, 100),
+  size: between(3, 7),
+  dur: between(16, 30),
+  delay: -between(0, 24),
+  rise: between(26, 46),
+  drift: Math.round(between(-40, 40)),
+  tint: MOTE_TINTS[Math.floor(rand() * MOTE_TINTS.length)],
+}));
 ---
 
 <div class="sky" aria-hidden="true">
@@ -108,7 +139,25 @@ const METEORS = [
     }
   </div>
 
-  <div class="sky__day"></div>
+  <div class="sky__day">
+    <div class="sun"></div>
+    {
+      CLOUDS.map((c, i) => (
+        <span
+          class:list={['cloud', { 'cloud--extra': i >= 3 }]}
+          style={`--x:${c.x}vw;--y:${c.y}vh;--w:${c.w}vw;--dur:${c.dur}s;--delay:${c.delay}s;--op:${c.op};--blur:${c.blur}px`}
+        />
+      ))
+    }
+    {
+      MOTES.map((m, i) => (
+        <span
+          class:list={['mote', { 'mote--extra': i >= 9 }]}
+          style={`--x:${m.x}%;--y:${m.y}%;--size:${m.size}px;--dur:${m.dur}s;--delay:${m.delay}s;--rise:${m.rise}vh;--drift:${m.drift}px;--tint:${m.tint}`}
+        />
+      ))
+    }
+  </div>
 </div>
 
 <style>
@@ -154,7 +203,9 @@ const METEORS = [
       visibility 0s linear 1.2s;
   }
   .sky__day {
-    transition: opacity 1.2s var(--ease-in-out);
+    transition:
+      opacity 1.2s var(--ease-in-out),
+      visibility 0s;
   }
 
   :global([data-theme='dark']) .sky__night {
@@ -164,6 +215,10 @@ const METEORS = [
   }
   :global([data-theme='dark']) .sky__day {
     opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 1.2s var(--ease-in-out),
+      visibility 0s linear 1.2s;
   }
   @media (prefers-color-scheme: dark) {
     :global(:root:not([data-theme])) .sky__night {
@@ -172,19 +227,27 @@ const METEORS = [
     }
     :global(:root:not([data-theme])) .sky__day {
       opacity: 0;
+      visibility: hidden;
     }
   }
 
-  /* Nothing animates in a scene nobody can see. */
+  /* Nothing animates in a scene nobody can see: night is paused by default
+     (light is the default theme) and runs in dark; day is the reverse. */
   .sky__night :is(.stars, .star, .meteor) {
     animation-play-state: paused;
   }
   :global([data-theme='dark']) .sky__night :is(.stars, .star, .meteor) {
     animation-play-state: running;
   }
+  :global([data-theme='dark']) .sky__day :is(.sun, .cloud, .mote) {
+    animation-play-state: paused;
+  }
   @media (prefers-color-scheme: dark) {
     :global(:root:not([data-theme])) .sky__night :is(.stars, .star, .meteor) {
       animation-play-state: running;
+    }
+    :global(:root:not([data-theme])) .sky__day :is(.sun, .cloud, .mote) {
+      animation-play-state: paused;
     }
   }
 
@@ -264,6 +327,101 @@ const METEORS = [
     animation: meteor var(--dur) linear var(--delay) infinite;
   }
 
+  /* ------------------------------------------------------------------ day */
+
+  /* A warm glow bleeding in from the top-right corner. No hard disc: it is
+     light in the air, not a drawing of a sun. */
+  .sun {
+    position: absolute;
+    inset-block-start: -22vmax;
+    inset-inline-end: -20vmax;
+    inline-size: 66vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgb(255 248 230 / 1) 0,
+      rgb(255 232 200 / 0.85) 10%,
+      rgb(255 206 186 / 0.5) 28%,
+      rgb(255 188 200 / 0.2) 50%,
+      transparent 70%
+    );
+    will-change: opacity, transform;
+    animation: sun-breathe 11s ease-in-out infinite alternate;
+  }
+
+  /* One blob cluster per element: several soft ellipses plus a faint
+     lavender underside, blurred ONCE (static filter) and then only translated
+     across the sky, so the drift is compositor-only. */
+  .cloud {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: max(var(--w), 15rem);
+    aspect-ratio: 3.4 / 1;
+    opacity: var(--op);
+    filter: blur(var(--blur));
+    background:
+      radial-gradient(ellipse 22% 48% at 20% 66%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 24% 74% at 40% 44%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 26% 60% at 62% 56%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 19% 46% at 82% 68%, #fff 0, #fff 32%, rgb(255 255 255 / 0) 100%),
+      radial-gradient(ellipse 46% 26% at 50% 82%, rgb(196 188 245 / 0.55) 0, rgb(196 188 245 / 0) 100%);
+    will-change: transform;
+    animation: cloud-drift var(--dur) linear var(--delay) infinite;
+  }
+
+  .mote {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    inline-size: var(--size);
+    block-size: var(--size);
+    border-radius: 50%;
+    background-color: var(--tint);
+    box-shadow: 0 0 8px 2px var(--tint);
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: mote-rise var(--dur) ease-in-out var(--delay) infinite;
+  }
+
+  @keyframes sun-breathe {
+    from {
+      opacity: 0.82;
+      transform: scale(1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+  /* -100% is the cloud's own width, so it starts fully off the left edge;
+     --x is subtracted so the result does not depend on where it rests. */
+  @keyframes cloud-drift {
+    from {
+      transform: translateX(calc(-100% - var(--x)));
+    }
+    to {
+      transform: translateX(calc(100vw - var(--x)));
+    }
+  }
+  @keyframes mote-rise {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+    }
+    18% {
+      opacity: 0.85;
+    }
+    70% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--drift), calc(var(--rise) * -1), 0);
+    }
+  }
+
   @keyframes twinkle {
     from {
       opacity: 0.45;
@@ -306,11 +464,17 @@ const METEORS = [
     .stars--a2,
     .stars--b2,
     .star--extra,
-    .meteor--extra {
+    .meteor--extra,
+    .cloud--extra,
+    .mote--extra {
       display: none;
     }
     .meteor {
       --travel: 60vmax;
+    }
+    /* A smaller blur radius is much cheaper to raster on a phone GPU. */
+    .cloud {
+      filter: blur(calc(var(--blur) * 0.55));
     }
   }
 
@@ -324,7 +488,13 @@ const METEORS = [
       opacity: 0.85;
       transform: none;
     }
-    .meteor {
+    .sun,
+    .cloud {
+      animation: none;
+      transform: none;
+    }
+    .meteor,
+    .mote {
       display: none;
     }
     .sky__night,
