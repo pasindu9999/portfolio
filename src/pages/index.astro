@@ -559,6 +559,18 @@ const SECTIONS = [
     font-size: clamp(1.05rem, 1rem + 0.2vw, 1.15rem);
     line-height: 1.5;
     max-inline-size: 62ch;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+  /* Justified so both paragraphs share one flush left and right edge. Only
+     where the column is wide enough: at ~340px (phones, two-column tablet)
+     justification opens visible gaps between words, so those stay ragged. The
+     last line of each paragraph stays left-aligned. */
+  @media (width >= 64rem) {
+    .about__intro p {
+      text-align: justify;
+      text-align-last: start;
+    }
   }
   .about__note {
     color: var(--ink-muted);
