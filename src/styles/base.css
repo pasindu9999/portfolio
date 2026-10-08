@@ -32,8 +32,19 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100svh;
   /* Theme swap should feel deliberate, not instant-snap. */
-  transition: background-color var(--dur) var(--ease-out),
-              color var(--dur) var(--ease-out);
+  transition: background-color var(--dur-theme) var(--ease-out),
+              color var(--dur-theme) var(--ease-out);
+}
+
+/* TEMPORARY SKY (phase 1). A fixed gradient behind everything, so the palette
+   can be judged before the animated Sky component replaces it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--sky-1), var(--sky-2), var(--sky-3));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -42,9 +53,9 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
   text-wrap: balance;
   color: var(--ink);
 }
@@ -114,8 +125,9 @@ ul[class], ol[class] { list-style: none; }
   left: var(--space-2xs);
   z-index: 100;
   padding: var(--space-2xs) var(--space-s);
-  background-color: var(--accent);
+  background-color: var(--accent-fill);
   color: var(--accent-ink);
+  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: var(--step--1);
   text-decoration: none;

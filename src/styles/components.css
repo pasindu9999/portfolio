@@ -1,0 +1,105 @@
+/* =========================================================================
+   COMPONENT PRIMITIVES -- shared by every page
+   Buttons, glass surfaces, pills and section headings. Page-specific layout
+   stays in the page; anything two pages need lives here.
+   ========================================================================= */
+
+/* --- Glass: the frosted surface used by cards, header and the toggle --- */
+.glass {
+  background-color: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--elevation);
+}
+
+/* --- Buttons: pills. `.btn` is the outline, `.btn--fill` the primary. --- */
+.btn {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  padding: 0.6em 1.5em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  background-color: transparent;
+  transition:
+    background-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+}
+.btn:hover {
+  background-color: var(--accent-fill);
+  color: var(--accent-ink);
+  border-color: var(--accent-fill);
+  box-shadow: 0 0 14px rgb(124 58 237 / 0.45);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--fill {
+  background-color: var(--accent-fill);
+  color: var(--accent-ink);
+  border-color: var(--accent-fill);
+}
+.btn--fill:hover {
+  background-color: var(--accent-fill-hover);
+  border-color: var(--accent-fill-hover);
+  box-shadow: 0 0 18px rgb(124 58 237 / 0.55);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn--fill:hover {
+    transform: scale(1.04);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+
+/* --- Section heading: centered, one purple word --------------------------
+   <header class="section-head">
+     <p class="eyebrow">02 / Work</p>
+     <h2>Selected <span>Work</span></h2>
+   </header>                                                              */
+.section-head {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2xs);
+  margin-block-end: var(--space-l);
+}
+.section-head h2 {
+  font-size: var(--step-4);
+}
+.section-head h2 span {
+  color: var(--accent);
+}
+
+/* --- Small pill: tags, status, hero facts --- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.3em 0.9em;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--glass);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}

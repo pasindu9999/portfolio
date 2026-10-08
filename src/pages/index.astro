@@ -36,39 +36,51 @@ const SECTIONS = [
 ---
 
 <BaseLayout title={`${SITE.name} — ${SITE.role}`} description={SITE.description}>
-  <SiteHeader slot="header" docking />
+  <SiteHeader slot="header" />
   <SiteFooter slot="footer" />
 
   <MarginaliaIndex sections={SECTIONS} />
 
-  <!-- ============ 01 MASTHEAD ============ -->
-  <section id="index" class="masthead">
-    <p class="eyebrow masthead__eyebrow">
-      {SITE.role} — portfolio — {year}
-    </p>
+  <!-- ============ 01 HERO ============ -->
+  <section id="index" class="hero">
+    <div class="hero__inner">
+      <p class="pill hero__eyebrow">{SITE.role} &middot; {year}</p>
 
-    <h1 class="masthead__anchor">
-      <span class="masthead__line-1">Udara</span>
-      <span class="masthead__line-2">Kurukula</span>
-      <span class="masthead__line-3">sooriya</span>
-    </h1>
+      <h1 class="hero__title">
+        <span class="hero__line hero__line--1">
+          Hi, I’m <span class="hero__first">Udara</span>
+        </span>
+        <span class="hero__line hero__line--2">Kurukulasooriya</span>
+      </h1>
 
-    <div class="masthead__rail">
-      <dl>
-        <div><dt>Role</dt><dd>{SITE.role}</dd></div>
-        <div><dt>Focus</dt><dd>Full-stack &middot; applied GenAI</dd></div>
-        <div><dt>Based</dt><dd>{SITE.location}</dd></div>
-        <div><dt>Status</dt><dd class="masthead__status">Open to roles</dd></div>
-      </dl>
-      <p class="masthead__intro measure">{BIO}</p>
+      <p class="hero__lede">{SITE.description}</p>
+
+      <ul class="hero__facts" aria-label="At a glance">
+        <li class="pill">Full-stack &middot; applied GenAI</li>
+        <li class="pill">{SITE.location}</li>
+        <li class="pill hero__status">Open to roles</li>
+      </ul>
+
+      <div class="hero__cta">
+        <a class="btn btn--fill" href="#work">View My Work</a>
+        <a class="btn" href="/cv.pdf">Download CV</a>
+      </div>
     </div>
+
+    <a class="hero__scroll" href="#work">
+      <span>Scroll</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M6 13l6 6 6-6"></path>
+      </svg>
+    </a>
   </section>
 
   <!-- ============ 02 WORK — the filterable gallery ============ -->
   <section id="work" class="section-block wrap">
-    <div class="rule-labelled">
-      <span class="label">02 /</span><span class="label">Selected work</span>
-    </div>
+    <header class="section-head">
+      <p class="eyebrow">02 / Work</p>
+      <h2>Selected <span>Work</span></h2>
+    </header>
     <FilterGroup
       id="work-filter"
       label="Filter projects by category"
@@ -133,9 +145,10 @@ const SECTIONS = [
 
   <!-- ============ 04 SKILLS — filterable, tag-field cards ============ -->
   <section id="skills" class="section-block wrap">
-    <div class="rule-labelled">
-      <span class="label">04 /</span><span class="label">Toolkit</span>
-    </div>
+    <header class="section-head">
+      <p class="eyebrow">04 / Skills</p>
+      <h2>My <span>Toolkit</span></h2>
+    </header>
     <FilterGroup
       id="skills-filter"
       label="Filter skills by category"
@@ -157,17 +170,19 @@ const SECTIONS = [
 
   <!-- ============ 05 TIMELINE — experience + education, merged ============ -->
   <section id="timeline" class="section-block wrap">
-    <div class="rule-labelled">
-      <span class="label">05 /</span><span class="label">Timeline</span>
-    </div>
+    <header class="section-head">
+      <p class="eyebrow">05 / Experience</p>
+      <h2>Career <span>Timeline</span></h2>
+    </header>
     <Timeline />
   </section>
 
   <!-- ============ 06 COLOPHON ============ -->
   <section id="colophon" class="section-block wrap">
-    <div class="rule-labelled">
-      <span class="label">06 /</span><span class="label">Colophon</span>
-    </div>
+    <header class="section-head">
+      <p class="eyebrow">06 / About</p>
+      <h2>About <span>Me</span></h2>
+    </header>
 
     <div class="colophon">
       <div class="colophon__portrait">
@@ -181,7 +196,7 @@ const SECTIONS = [
         />
       </div>
       <div class="colophon__copy">
-        <h2>Engineer, end to end.</h2>
+        <h3>Engineer, end to end.</h3>
         <p class="measure">{BIO}</p>
         <p class="colophon__note measure">
           In practice that has meant two things at once: moving long-lived
@@ -191,21 +206,22 @@ const SECTIONS = [
           than screens. The GenAI work is the same instinct pointed at a newer
           problem — measure first, then decide what to change.
         </p>
-        <a class="btn" href="/cv.pdf">Download CV</a>
+        <a class="btn btn--fill" href="/cv.pdf">Download CV</a>
       </div>
     </div>
   </section>
 
   <!-- ============ 07 CONTACT ============ -->
   <section id="contact" class="section-block wrap">
-    <div class="rule-labelled">
-      <span class="label">07 /</span><span class="label">Contact</span>
-    </div>
+    <header class="section-head">
+      <p class="eyebrow">07 / Contact</p>
+      <h2>Get in <span>Touch</span></h2>
+    </header>
 
-    <h2 class="contact__statement">
-      Let’s build<br />something that<br />
+    <p class="contact__statement">
+      Let’s build something that
       <span class="contact__accent">actually ships.</span>
-    </h2>
+    </p>
 
     <div class="contact">
       <ContactLedger />
@@ -261,100 +277,112 @@ const SECTIONS = [
     padding-inline: var(--gutter);
   }
 
-  /* ---------- Masthead ---------- */
-  .masthead {
+  /* ---------- Hero ---------- */
+  .hero {
     position: relative;
-    isolation: isolate;
-    padding: var(--space-xl) var(--gutter) var(--space-2xl);
-    max-inline-size: 90rem;
-    margin-inline: auto;
-  }
-  /* A very low-opacity dot grid behind the hero, faded out toward the edges
-     so it reads as texture rather than a pattern. Pure CSS, no image asset. */
-  .masthead::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-image: radial-gradient(circle, var(--texture) 1px, transparent 1.5px);
-    background-size: var(--texture-size) var(--texture-size);
-    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-  }
-  .masthead__eyebrow {
-    margin-block-end: var(--space-m);
-  }
-
-  .masthead__anchor {
-    font-size: var(--step-anchor);
-    line-height: 0.82;
-    letter-spacing: -0.045em;
-    font-weight: 500;
-    text-transform: uppercase;
     display: grid;
+    place-items: center;
+    /* The header is sticky and takes its own 4rem, so the hero fills the rest
+       of the first screen exactly. */
+    min-block-size: calc(100svh - 4rem);
+    padding: var(--space-xl) var(--gutter) var(--space-3xl);
+    text-align: center;
   }
-  /* The asymmetry. Three lines, each staggered off the last, with the final
-     syllable dropping to the accent. Splitting the surname across two lines
-     is also what keeps the longest line short enough never to overflow. */
-  .masthead__line-1 {
-    justify-self: start;
-  }
-  .masthead__line-2 {
-    justify-self: center;
-  }
-  .masthead__line-3 {
-    justify-self: end;
-    color: var(--accent);
-  }
-  @media (width >= 48rem) {
-    .masthead__line-2 {
-      justify-self: end;
-      padding-inline-end: 8%;
-    }
-    .masthead__line-3 {
-      padding-inline-end: 0;
-    }
-  }
-
-  .masthead__rail {
-    margin-block-start: var(--space-xl);
+  .hero__inner {
     display: grid;
+    justify-items: center;
     gap: var(--space-m);
-    border-block-start: 1px solid var(--rule);
-    padding-block-start: var(--space-s);
+    max-inline-size: 56rem;
   }
-  @media (width >= 60rem) {
-    .masthead__rail {
-      grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
-      gap: var(--space-xl);
-    }
-  }
-  .masthead__rail dl {
+  .hero__title {
     display: grid;
-    gap: var(--space-2xs);
-    align-content: start;
+    gap: 0.05em;
+    font-size: var(--step-anchor);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    font-weight: 700;
   }
-  .masthead__rail dl > div {
+  .hero__line {
+    display: block;
+    /* Long surname: never let it push past the viewport. */
+    overflow-wrap: anywhere;
+  }
+  .hero__first {
+    color: var(--accent);
+    text-shadow: var(--text-glow);
+  }
+  .hero__lede {
+    max-inline-size: 42rem;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .hero__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs);
+    list-style: none;
+  }
+  .hero__status {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-s);
+    padding-block-start: var(--space-2xs);
+  }
+  .hero__scroll {
+    position: absolute;
+    inset-block-end: var(--space-m);
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: fit-content;
     display: grid;
-    grid-template-columns: 5.5rem 1fr;
-    gap: var(--space-2xs);
-  }
-  .masthead__rail dt {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--ink-subtle);
-  }
-  .masthead__rail dd {
-    font-family: var(--font-mono);
+    justify-items: center;
+    gap: 2px;
     font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--ink-muted);
   }
-  .masthead__status {
+  .hero__scroll svg {
     color: var(--accent);
   }
-  .masthead__intro {
-    font-size: var(--step-1);
-    line-height: 1.45;
+
+  /* Staggered load-in and the bouncing cue. Backwards fill: the start state
+     applies only while the animation is pending, so if animation is
+     unsupported or disabled the content is simply there. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__eyebrow,
+    .hero__line--1,
+    .hero__line--2,
+    .hero__lede,
+    .hero__facts,
+    .hero__cta {
+      animation: hero-in 0.7s var(--ease-out) backwards;
+    }
+    .hero__line--1 { animation-delay: 0.1s; }
+    .hero__line--2 { animation-delay: 0.25s; }
+    .hero__lede    { animation-delay: 0.4s; }
+    .hero__facts   { animation-delay: 0.55s; }
+    .hero__cta     { animation-delay: 0.7s; }
+    .hero__scroll svg {
+      animation: hero-bounce 1.8s ease-in-out infinite;
+    }
+  }
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+  }
+  @keyframes hero-bounce {
+    50% {
+      transform: translateY(6px);
+    }
   }
 
   /* ---------- Work gallery ---------- */
@@ -392,6 +420,11 @@ const SECTIONS = [
     .selected__media {
       margin-inline-start: calc(var(--gutter) * -1);
     }
+  }
+  .selected__media {
+    overflow: hidden;
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
   }
   .selected__media :global(img) {
     inline-size: 100%;
@@ -480,6 +513,11 @@ const SECTIONS = [
       align-items: start;
     }
   }
+  .colophon__portrait {
+    overflow: hidden;
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
+  }
   .colophon__portrait :global(img) {
     inline-size: 100%;
     aspect-ratio: 4 / 5;
@@ -491,8 +529,8 @@ const SECTIONS = [
     align-content: start;
     max-inline-size: var(--measure);
   }
-  .colophon__copy h2 {
-    font-size: var(--step-4);
+  .colophon__copy h3 {
+    font-size: var(--step-3);
     letter-spacing: -0.035em;
   }
   .colophon__copy p {
@@ -505,10 +543,15 @@ const SECTIONS = [
 
   /* ---------- Contact ---------- */
   .contact__statement {
-    font-size: var(--step-5);
-    letter-spacing: -0.04em;
-    line-height: 0.98;
-    margin-block: var(--space-2xs) var(--space-l);
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    max-inline-size: 28ch;
+    margin: calc(var(--space-s) * -1) auto var(--space-xl);
+    text-wrap: balance;
   }
   .contact__accent {
     color: var(--accent);
@@ -532,40 +575,5 @@ const SECTIONS = [
     align-content: start;
   }
 
-  /* ---------- Buttons ---------- */
-  .btn {
-    justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    text-decoration: none;
-    padding: var(--space-2xs) var(--space-s);
-    border: 1px solid var(--rule-strong);
-    transition:
-      background-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out);
-  }
-  .btn:hover {
-    background-color: var(--accent);
-    color: var(--accent-ink);
-    border-color: var(--accent);
-  }
-  .btn--fill {
-    background-color: var(--accent);
-    color: var(--accent-ink);
-    border-color: var(--accent);
-  }
-  .btn--fill:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .btn {
-      transition: none;
-    }
-  }
+  /* Buttons (.btn, .btn--fill) live in styles/components.css. */
 </style>

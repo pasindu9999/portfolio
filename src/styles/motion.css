@@ -99,26 +99,6 @@
   animation-timing-function: var(--ease-out);
 }
 
-/* --- Theme wipe: a circular reveal originating at the toggle. --- */
-html.theme-wiping::view-transition-old(root) {
-  animation: none;
-}
-html.theme-wiping::view-transition-new(root) {
-  animation: theme-wipe 520ms var(--ease-out);
-  /* Outgoing frame must not blend through the incoming one, or the wipe
-     reads as a muddy cross-fade instead of a clean edge. */
-  mix-blend-mode: normal;
-}
-html.theme-wiping::view-transition-old(root),
-html.theme-wiping::view-transition-new(root) {
-  mix-blend-mode: normal;
-}
-
-@keyframes theme-wipe {
-  from {
-    clip-path: circle(0 at var(--wipe-x, 50%) var(--wipe-y, 0));
-  }
-  to {
-    clip-path: circle(150vmax at var(--wipe-x, 50%) var(--wipe-y, 0));
-  }
-}
+/* The theme change itself is NOT a view transition: a snapshot would freeze
+   the animated sky mid-flight. The sky and colours transition in CSS instead
+   (see Sky.astro and the --dur-theme tokens). */

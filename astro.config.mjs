@@ -26,15 +26,6 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.google(),
-      name: 'Bricolage Grotesque',
-      cssVariable: '--face-display',
-      weights: ['200 800'],
-      styles: ['normal'],
-      subsets: ['latin'],
-      fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
-    },
-    {
-      provider: fontProviders.google(),
       name: 'Geist',
       cssVariable: '--face-body',
       weights: ['100 900'],
