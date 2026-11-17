@@ -1,0 +1,135 @@
+---
+/**
+ * "Currently available" card, shown under the contact info card. Same glass
+ * surface; the only new colour is the green status dot (a universal
+ * "available" signal that reads in both the light and the purple dark theme).
+ *
+ * All copy lives in the constants below -- edit them here, not in the markup.
+ */
+
+// TODO(Udara): decide how you want to work and write it as one short line,
+// e.g. "Remote or hybrid, open to relocation." Left empty on purpose so no
+// claim is made until you've decided -- while it is '' nothing is rendered.
+const WORK_ARRANGEMENT: string = '';
+
+const AVAILABILITY = {
+  title: 'Currently available',
+  body: 'Open to Software Engineer, Senior Software Engineer and .NET Developer roles. If you’re hiring, I’d love to hear what your team is building.',
+  roles: ['Software Engineer', 'Senior Software Engineer', '.NET Developer'],
+} as const;
+---
+
+<section class="availability glass" aria-labelledby="availability-title">
+  <header class="availability__head">
+    <span class="availability__dot" aria-hidden="true"></span>
+    <h3 id="availability-title" class="availability__title">
+      {AVAILABILITY.title}
+    </h3>
+  </header>
+
+  <p class="availability__body">{AVAILABILITY.body}</p>
+
+  <ul class="availability__roles">
+    {AVAILABILITY.roles.map((role) => <li>{role}</li>)}
+  </ul>
+
+  {
+    WORK_ARRANGEMENT && (
+      <p class="availability__arrangement">{WORK_ARRANGEMENT}</p>
+    )
+  }
+</section>
+
+<style>
+  /* Surface (border, radius, glass, shadow) comes from the shared .glass. */
+  .availability {
+    --available: #15803d;
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+    padding: var(--space-m);
+  }
+  :global([data-theme='dark']) .availability {
+    --available: #4ade80;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .availability {
+      --available: #4ade80;
+    }
+  }
+
+  .availability__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+  .availability__title {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  .availability__dot {
+    position: relative;
+    flex: none;
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: 50%;
+    background-color: var(--available);
+  }
+  /* The pulse is a second, expanding ring. It only exists when motion is
+     welcome; under reduce the dot is simply a steady green. */
+  @media (prefers-reduced-motion: no-preference) {
+    .availability__dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background-color: var(--available);
+      animation: availability-pulse 2.2s var(--ease-out) infinite;
+    }
+  }
+  @keyframes availability-pulse {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  .availability__body {
+    color: var(--ink-muted);
+    line-height: 1.55;
+    max-inline-size: 52ch;
+  }
+
+  .availability__roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    padding: 0;
+  }
+  .availability__roles li {
+    padding: 0.3em 0.9em;
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .availability__arrangement {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+</style>

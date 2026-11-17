@@ -1,178 +1,186 @@
 ---
 /**
- * Tri-state theme control: Light / System / Dark.
+ * Single sun/moon button.
  *
- * A two-state switch cannot represent "system" and gives users no way back to
- * it once they've touched it, so this is a segmented control. Built on native
- * radio inputs so arrow-key navigation, grouping and announcement come from
- * the platform rather than a hand-rolled roving tabindex.
+ * Storage contract (shared with ThemeScript.astro): key `theme` holds "light"
+ * or "dark" ONLY. No key means "follow the system" -- a first click stores an
+ * explicit choice, and `localStorage.removeItem('theme')` is the way back
+ * (surfaced as "Use system theme" in the footer).
+ *
+ * The icon state is driven by CSS from the `data-theme` attribute on <html>,
+ * not from component state, so it is right on first paint with no flash.
  */
 ---
 
-<fieldset class="theme-toggle" id="theme-toggle">
-  <legend class="sr-only">Colour theme</legend>
-
-  <input type="radio" name="theme-pref" id="theme-light" value="light" />
-  <label for="theme-light" title="Light">
-    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
-      <circle cx="8" cy="8" r="3.1" />
-      <path d="M8 1v1.6M8 13.4V15M15 8h-1.6M2.6 8H1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1M12.9 12.9l-1.1-1.1M4.2 4.2L3.1 3.1" stroke-linecap="round" />
-    </svg>
-    <span class="sr-only">Light</span>
-  </label>
-
-  <input type="radio" name="theme-pref" id="theme-system" value="system" />
-  <label for="theme-system" title="Match system">
-    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
-      <rect x="1.7" y="2.6" width="12.6" height="8.6" rx="1.2" />
-      <path d="M5.6 13.4h4.8" stroke-linecap="round" />
-    </svg>
-    <span class="sr-only">System</span>
-  </label>
-
-  <input type="radio" name="theme-pref" id="theme-dark" value="dark" />
-  <label for="theme-dark" title="Dark">
-    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
-      <path d="M13.4 9.6A5.8 5.8 0 0 1 6.4 2.6a5.8 5.8 0 1 0 7 7Z" stroke-linejoin="round" />
-    </svg>
-    <span class="sr-only">Dark</span>
-  </label>
-
-  <span class="theme-toggle__thumb" aria-hidden="true"></span>
-</fieldset>
+<button
+  type="button"
+  class="theme-toggle"
+  id="theme-toggle"
+  aria-pressed="false"
+  aria-label="Dark theme"
+  title="Toggle light / dark"
+>
+  <svg
+    class="theme-toggle__icon theme-toggle__sun"
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+  >
+    <circle cx="12" cy="12" r="4.2"></circle>
+    <path
+      d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.35 5.35l1.55 1.55M17.1 17.1l1.55 1.55M18.65 5.35 17.1 6.9M6.9 17.1l-1.55 1.55"
+    ></path>
+  </svg>
+  <svg
+    class="theme-toggle__icon theme-toggle__moon"
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8Z"></path>
+  </svg>
+</button>
 
 <style>
   .theme-toggle {
     position: relative;
-    display: inline-grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: center;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 3px;
-    background-color: var(--surface-raised);
-  }
-
-  .theme-toggle input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .theme-toggle label {
-    position: relative;
-    z-index: 1;
     display: grid;
     place-items: center;
-    inline-size: 1.9rem;
-    block-size: 1.6rem;
-    border-radius: 999px;
-    cursor: pointer;
-    color: var(--ink-subtle);
-    transition: color var(--dur-fast) var(--ease-out);
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    color: var(--ink);
+    transition:
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
   }
 
-  .theme-toggle label:hover { color: var(--ink); }
-
-  /* The sliding thumb. Sits under the labels and translates between slots. */
-  .theme-toggle__thumb {
-    position: absolute;
-    z-index: 0;
-    inset-block: 3px;
-    inset-inline-start: 3px;
-    inline-size: 1.9rem;
-    border-radius: 999px;
-    background-color: var(--accent);
-    transition: transform var(--dur) var(--ease-out);
+  /* Both icons occupy the same cell; the inactive one rotates and fades out.
+     Sun shows in light theme (it is the thing you are looking at), moon in
+     dark -- the icon reflects the current sky, the label says what it does. */
+  .theme-toggle__icon {
+    grid-area: 1 / 1;
+    transition:
+      opacity var(--dur-theme) var(--ease-out),
+      rotate var(--dur-theme) var(--ease-out),
+      scale var(--dur-theme) var(--ease-out);
+  }
+  .theme-toggle__sun {
+    color: #b45309; /* amber 700 -- ~4.4:1 on the day glass (icon: needs 3:1) */
+  }
+  .theme-toggle__moon {
+    color: var(--accent);
+    opacity: 0;
+    rotate: -60deg;
+    scale: 0.6;
   }
 
-  input#theme-light:checked  ~ .theme-toggle__thumb { transform: translateX(0); }
-  input#theme-system:checked ~ .theme-toggle__thumb { transform: translateX(100%); }
-  input#theme-dark:checked   ~ .theme-toggle__thumb { transform: translateX(200%); }
-
-  input:checked + label { color: var(--accent-ink); }
-
-  /* Focus must land on the label, since the real input is visually hidden. */
-  input:focus-visible + label {
-    outline: 2px solid var(--focus);
-    outline-offset: 3px;
+  :global([data-theme='dark']) .theme-toggle__sun {
+    opacity: 0;
+    rotate: 60deg;
+    scale: 0.6;
+  }
+  :global([data-theme='dark']) .theme-toggle__moon {
+    opacity: 1;
+    rotate: 0deg;
+    scale: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .theme-toggle__thumb { transition: none; }
+    .theme-toggle,
+    .theme-toggle__icon {
+      transition: none;
+    }
   }
 </style>
 
 <script>
   const STORAGE_KEY = 'theme';
   const root = document.documentElement;
-  const group = document.getElementById('theme-toggle');
-  if (group) {
+  const button = document.getElementById('theme-toggle');
+
+  if (button) {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
 
-    const read = (): string => {
+    const stored = (): 'light' | 'dark' | null => {
       try {
         const v = localStorage.getItem(STORAGE_KEY);
-        return v === 'light' || v === 'dark' ? v : 'system';
+        return v === 'light' || v === 'dark' ? v : null;
       } catch {
-        return 'system';
+        return null;
       }
     };
 
-    const resolve = (pref: string): 'light' | 'dark' =>
-      pref === 'light' || pref === 'dark'
-        ? pref
-        : media.matches
-          ? 'dark'
-          : 'light';
+    // KEEP in sync with ThemeScript.astro.
+    const THEME_COLOR = { light: '#c4defb', dark: '#04061a' };
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let settle: number | undefined;
 
-    const paint = (pref: string) => {
-      const theme = resolve(pref);
+    const paint = (theme: 'light' | 'dark') => {
+      // While the sky changes, ease text and surface colours too, so words do
+      // not snap to the new theme while the sky behind them is still the old
+      // one. Skipped under reduced motion: that is an instant cut.
+      if (!reduced.matches) {
+        root.classList.add('theme-changing');
+        clearTimeout(settle);
+        settle = window.setTimeout(
+          () => root.classList.remove('theme-changing'),
+          1800,
+        );
+      }
       root.setAttribute('data-theme', theme);
       root.style.colorScheme = theme;
+      button.setAttribute('aria-pressed', String(theme === 'dark'));
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', THEME_COLOR[theme]);
     };
 
-    // Initialise the control from the DOM/storage, never from component state.
-    const current = read();
-    const input = group.querySelector<HTMLInputElement>(
-      `input[value="${current}"]`,
-    );
-    if (input) input.checked = true;
+    const current = (): 'light' | 'dark' =>
+      root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 
-    group.addEventListener('change', (event) => {
-      const target = event.target as HTMLInputElement;
-      if (!target.name || target.name !== 'theme-pref') return;
-      const pref = target.value;
+    // Sync aria-pressed with what the blocking head script already resolved.
+    button.setAttribute('aria-pressed', String(current() === 'dark'));
 
+    button.addEventListener('click', () => {
+      const next = current() === 'dark' ? 'light' : 'dark';
       try {
-        if (pref === 'system') localStorage.removeItem(STORAGE_KEY);
-        else localStorage.setItem(STORAGE_KEY, pref);
+        localStorage.setItem(STORAGE_KEY, next);
       } catch {
         /* Storage unavailable -- the choice still applies for this page. */
       }
-
-      // Circular wipe from the control. A full-viewport wipe is a vestibular
-      // trigger, so it is skipped entirely under reduced-motion.
-      const reduced = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
-      // @ts-expect-error -- not in every lib.dom yet
-      if (!reduced && typeof document.startViewTransition === 'function') {
-        const rect = target.getBoundingClientRect();
-        root.style.setProperty('--wipe-x', `${rect.left + rect.width / 2}px`);
-        root.style.setProperty('--wipe-y', `${rect.top + rect.height / 2}px`);
-        root.classList.add('theme-wiping');
-        // @ts-expect-error -- see above
-        const vt = document.startViewTransition(() => paint(pref));
-        vt.finished.finally(() => root.classList.remove('theme-wiping'));
-      } else {
-        paint(pref);
-      }
+      paint(next);
+      // Lets the footer reveal its "Use system theme" reset.
+      window.dispatchEvent(new Event('theme:stored'));
     });
 
     // Track the OS while following it. Users expect this; almost nobody does it.
     media.addEventListener('change', () => {
-      if (read() === 'system') paint('system');
+      if (stored() === null) paint(media.matches ? 'dark' : 'light');
+    });
+
+    // "Use system theme" (footer) clears the key and dispatches this event.
+    window.addEventListener('theme:reset', () => {
+      paint(media.matches ? 'dark' : 'light');
     });
   }
 </script>

@@ -2,12 +2,6 @@
 import ThemeToggle from './ThemeToggle.astro';
 import { SITE } from '../data/site';
 
-interface Props {
-  /** The home page owns the big masthead, so its wordmark docks in on scroll. */
-  docking?: boolean;
-}
-const { docking = false } = Astro.props;
-
 const NAV = [
   { href: '/#work', label: 'Work' },
   { href: '/#colophon', label: 'About' },
@@ -16,13 +10,41 @@ const NAV = [
 ];
 ---
 
-<header class="site-header" class:list={[{ 'is-docking': docking }]}>
+<header class="site-header">
   <a class="site-header__mark" href="/" aria-label={`${SITE.name} — home`}>
-    <span aria-hidden="true">UK</span>
-    <span class="sr-only">{SITE.name}</span>
+    <span class="site-header__first" aria-hidden="true">Udara</span>
+    <span class="site-header__rest" aria-hidden="true">Kurukulasooriya</span>
   </a>
 
-  <nav aria-label="Primary">
+  <div class="site-header__end">
+    <nav class="site-header__nav" aria-label="Primary">
+      <ul>
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <ThemeToggle />
+
+    <!-- Below 40rem the links live in a native popover: no JS to open it. -->
+    <button
+      class="site-header__menu-btn"
+      type="button"
+      popovertarget="site-menu"
+      aria-label="Menu"
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav id="site-menu" class="site-header__popover" popover aria-label="Primary (menu)">
     <ul>
       {
         NAV.map((item) => (
@@ -33,12 +55,11 @@ const NAV = [
       }
     </ul>
   </nav>
-
-  <ThemeToggle />
 </header>
 
 <style>
   .site-header {
+    --header-h: 4rem;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -46,69 +67,149 @@ const NAV = [
     align-items: center;
     justify-content: space-between;
     gap: var(--space-s);
+    min-block-size: var(--header-h);
     padding: var(--space-2xs) var(--gutter);
-    border-block-end: 1px solid var(--rule);
-    background-color: color-mix(in srgb, var(--surface) 82%, transparent);
-    backdrop-filter: blur(10px);
   }
 
-  .site-header__mark {
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    text-decoration: none;
-    line-height: 1;
-  }
-
-  /* Signature #2: the wordmark docks in as the masthead leaves.
-     NOTE: Google serves Bricolage Grotesque with only the weight axis
-     varying (stretch is fixed at 100%), so this animates `font-weight` and
-     letter-spacing rather than the `wdth` axis. Same "condensing" read, and
-     unlike a width axis it actually exists in the file we ship. */
-  .site-header.is-docking .site-header__mark {
-    opacity: 1;
+  /* The frosted layer is its own element so it can fade in on scroll without
+     animating backdrop-filter itself. Always on by default (no scroll-driven
+     animation support, or reduced motion): frosted from the first pixel. */
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-block-end: 1px solid var(--glass-border);
+    box-shadow: var(--elevation);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: scroll()) {
-      .site-header.is-docking .site-header__mark {
-        animation: mark-dock linear both;
+      .site-header::before {
+        animation: header-frost linear both;
         animation-timeline: scroll(root block);
-        animation-range: 0 55svh;
+        animation-range: 0 120px;
       }
     }
   }
 
-  @keyframes mark-dock {
+  @keyframes header-frost {
     from {
       opacity: 0;
-      font-weight: 250;
-      letter-spacing: 0.08em;
     }
     to {
       opacity: 1;
-      font-weight: 800;
-      letter-spacing: -0.05em;
     }
   }
 
-  .site-header nav ul {
-    display: flex;
-    gap: var(--space-s);
-    list-style: none;
+  .site-header__mark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3em;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .site-header__first {
+    color: var(--accent);
+    text-shadow: var(--text-glow);
+  }
+  .site-header__rest {
+    display: none;
+  }
+  @media (width >= 34rem) {
+    .site-header__rest {
+      display: inline;
+    }
   }
 
-  .site-header nav a {
-    font-family: var(--font-mono);
+  .site-header__end {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  .site-header__nav ul {
+    display: none;
+    gap: var(--space-m);
+    list-style: none;
+  }
+  @media (width >= 40rem) {
+    .site-header__nav ul {
+      display: flex;
+    }
+  }
+
+  .site-header__nav a {
     font-size: var(--step--1);
     text-decoration: none;
     color: var(--ink-muted);
+    transition: color var(--dur) var(--ease-out);
   }
-  .site-header nav a:hover { color: var(--accent); }
+  .site-header__nav a:hover {
+    color: var(--accent);
+  }
 
-  @media (width < 34rem) {
-    .site-header nav ul { gap: var(--space-xs); }
-    .site-header nav a { font-size: var(--step--2); }
+  /* --- Mobile menu button + popover --- */
+  .site-header__menu-btn {
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background-color: var(--glass);
+    color: var(--ink);
+  }
+  @media (width >= 40rem) {
+    .site-header__menu-btn {
+      display: none;
+    }
+  }
+
+  .site-header__popover {
+    position: fixed;
+    inset: calc(var(--header-h) + 0.25rem) var(--gutter) auto auto;
+    margin: 0;
+    min-inline-size: 12rem;
+    padding: var(--space-xs);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    /* Opaque-ish: the popover sits over live content, so it needs to read
+       without backdrop blur on every device. */
+    background-color: var(--surface-raised);
+    color: var(--ink);
+    box-shadow: var(--elevation);
+  }
+  .site-header__popover ul {
+    display: grid;
+    gap: var(--space-3xs);
+    list-style: none;
+  }
+  .site-header__popover a {
+    display: block;
+    padding: var(--space-2xs) var(--space-xs);
+    border-radius: var(--radius-s);
+    text-decoration: none;
+  }
+  .site-header__popover a:hover {
+    background-color: var(--glass);
+    color: var(--accent);
   }
 </style>
+
+<script>
+  // A same-page hash link does not navigate away, so the popover would stay
+  // open over the section it just scrolled to. Close it on any link click.
+  const menu = document.getElementById('site-menu');
+  menu?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) menu.hidePopover();
+  });
+</script>

@@ -11,8 +11,8 @@ tags:
     'Gemini API',
     'pytest',
   ]
-cover: '../../assets/projects/ai-pdf-chatbot.png'
-coverAlt: 'Typographic cover: a retrieval benchmark ladder rising to recall@5 of 1.000.'
+cover: '../../assets/projects/ai-pdf-chatbot-cover.png'
+coverAlt: 'Illustration: PDF pages with highlighted answer passages and page-number citations, beside recall@5 rising from 0.962 to 1.000.'
 year: 2026
 role: 'Sole engineer'
 timeline: '2026'

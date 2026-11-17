@@ -76,9 +76,9 @@ Confirmed working on the live deploy: security headers and the immutable
       typographic covers (`npm run covers`) because they had no image. Real
       screenshots would be stronger for AI PDF Chatbot and ALE Portal if you
       have any that are safe to publish.
-- [ ] **A hero photo (optional).** The masthead is deliberately typographic with
-      no portrait. The about page uses `src/assets/portrait-about.jpeg`. Replace
-      it if you want a better one.
+- [ ] **A hero photo (optional).** The masthead and About section are
+      deliberately typographic, with no portrait. (`portrait-about.jpeg` was
+      removed along with the arch frame.)
 - [ ] **Update the "My Portfolio" link on your CV** to the new domain once it
       is live.
 

@@ -131,20 +131,29 @@ const { data } = project;
     line-height: 1.45;
   }
 
+  /* The spec sheet is one glass card; rows keep their hairlines inside it. */
   .case__spec {
     display: grid;
     gap: 0;
     margin-block-end: var(--space-l);
+    padding: var(--space-xs) var(--space-m);
+    inline-size: min(78rem - 2 * var(--gutter), 100% - 2 * var(--gutter));
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
   }
   .case__spec > div {
     display: grid;
     grid-template-columns: 7rem 1fr;
     gap: var(--space-s);
-    padding-block: var(--space-2xs);
+    padding-block: var(--space-xs);
     border-block-start: 1px solid var(--rule);
   }
-  .case__spec > div:last-child {
-    border-block-end: 1px solid var(--rule);
+  .case__spec > div:first-child {
+    border-block-start: none;
   }
   /* Stagger the rows so the sheet assembles rather than appearing at once. */
   .case__spec > div:nth-child(1) { --reveal-shift: 0.6rem; }
@@ -175,6 +184,8 @@ const { data } = project;
     padding-inline: var(--gutter);
   }
   .case__cover :global(img) {
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
     inline-size: 100%;
     /* 3:2 rather than 16:9 -- several covers are square, and a 16:9 crop cuts
        the top and bottom off them. Capped so a tall image cannot push the
@@ -193,14 +204,29 @@ const { data } = project;
     max-block-size: 76svh;
     inline-size: 100%;
   }
-  .case__cover[data-fit='contain'] {
-    border: 1px solid var(--rule);
+  .case__cover[data-fit='contain'] :global(img) {
+    border: 1px solid var(--glass-border);
   }
 
-  /* Long-form prose. Scoped styles do not reach <Content />, hence :global. */
+  /* Long-form prose sits on a glass panel so it stays readable over the moving
+     sky. Scoped styles do not reach <Content />, hence :global. */
   .case__body {
-    max-inline-size: 46rem;
+    inline-size: min(46rem, 100% - 2 * var(--gutter));
     margin-inline: auto;
+    padding: var(--space-m);
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
+  }
+  .case__body > :global(:first-child) {
+    margin-block-start: 0;
+  }
+  .case__body > :global(:first-child:is(h2, h3)) {
+    border-block-start: none;
+    padding-block-start: 0;
   }
   .case__body :global(h2) {
     font-size: var(--step-3);
@@ -318,14 +344,24 @@ const { data } = project;
     grid-template-columns: 1fr auto;
     align-items: end;
     gap: var(--space-2xs);
-    padding-block: var(--space-m);
-    border-block-start: 1px solid var(--rule);
+    padding: var(--space-m);
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--elevation);
     text-decoration: none;
-    transition: padding-inline-start var(--dur) var(--ease-out);
+    transition:
+      padding-inline-start var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
   }
   .case__next a:hover {
-    padding-inline-start: var(--space-s);
+    padding-inline-start: var(--space-l);
     color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--elevation-hover);
   }
   .case__next-title {
     grid-column: 1;

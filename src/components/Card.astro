@@ -1,15 +1,11 @@
 ---
 /**
- * Shared bordered-card shell for skills and project cards: thin border, no
- * shadow, matching the ledger/spec sheet language. `category` drives
- * FilterGroup's show/hide.
+ * Shared frosted-glass card shell for skills and project cards. `category`
+ * drives FilterGroup's show/hide.
  *
- * This used to be GlowCard, with a cursor-tracking glow and a spring tilt
- * driven by a small scoped script. Every card now lives on the homepage,
- * which ships zero JavaScript, so that script has no page left to run on --
- * it was removed rather than shipped as dead code. What remains is the
- * plain accent-border-on-hover treatment that was always the reduced-motion
- * and touch-device fallback for it.
+ * Elevation comes from tokens, so it is a soft lavender shadow by day and a
+ * luminous hairline at night. Hover lifts the card and lights the border; the
+ * lift is transform-only and skipped under reduced motion.
  */
 interface Props {
   category?: string;
@@ -31,15 +27,30 @@ const { category, class: className } = Astro.props;
 
   .card__body {
     position: relative;
-    border: 1px solid var(--rule);
-    background-color: var(--surface);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    background-color: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--elevation);
     padding: var(--space-s);
     height: 100%;
-    transition: border-color var(--dur-fast) var(--ease-out);
+    transition:
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
   }
 
   .card__body:hover {
     border-color: var(--accent);
+    box-shadow: var(--elevation-hover);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card__body:hover {
+      transform: translateY(-4px);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

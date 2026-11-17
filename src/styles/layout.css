@@ -84,9 +84,11 @@
 }
 
 /* The marginalia index is position: fixed in the left gutter. Reserve that
-   column globally at the same breakpoint it appears, or it overlaps content. */
+   column at the same breakpoint it appears, or it overlaps content. Applied to
+   <main> and the footer, NOT <body>, so the sticky header stays full-bleed. */
 @media (width >= 90rem) {
-  body {
+  body > main,
+  body > footer {
     padding-inline-start: 4.5rem;
   }
 }
